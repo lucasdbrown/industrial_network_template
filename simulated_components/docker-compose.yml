@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+# Where to put the configurations for simulated python components you make for the scenario you choose to do
+
+
+
+
+
+
+networks:
+  wnet:
+    driver: bridge
+    name: icsnet
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+          gateway: 192.168.100.254
+    driver_opts:
+      com.docker.network.bridge.name: br_icsnet
+  fnet:
+    driver: bridge
+    name: phynet
+    ipam:
+      config: 
+      - subnet: 192.168.101.0/24
+        gateway: 192.168.101.254
+    driver_opts:
+      com.docker.network.bridge.name: br_phynet
+
+volumes:
+  src:
