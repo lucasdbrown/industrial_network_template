@@ -1,0 +1,69 @@
+# Docker compose file to manage your deployed images.
+# Use MySQL server 8.0 and latest Scada-LTS local build.
+# Using attached webapps folder as developer you will be able to modify the static content from host os.
+# Attach shell to stop the tomcat instance and then you will be able to run in JPDA mode.
+version: '3'
+services:
+    database:
+      container_name: MySQL
+      image: mysql/mysql-server:8.0
+      ports:
+          - "3306:3306"
+      environment:
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_USER=root
+          - MYSQL_PASSWORD=root
+          - MYSQL_DATABASE=scadalts
+      expose: ["3306"]
+      volumes:
+          - scada_databases:/home/
+      networks:
+          wnet:
+              ipv4_address: 192.168.100.44
+    scadalts:
+      image: scadalts/scadalts:latest
+      environment:
+          - CATALINA_OPTS=-Xmx512m  -Xms512m
+      ports:
+          - "8000:8080"
+      depends_on:
+          - database
+      expose: ["8080, 8000"]
+      links:
+          - database:database
+      command:
+          - /usr/bin/wait-for-it
+          - --host=database
+          - --port=3306
+          - --timeout=30
+          - --strict
+          - --
+          - /usr/local/tomcat/bin/catalina.sh
+          - run
+      networks:
+          wnet:
+              ipv4_address: 192.168.100.45
+              
+                    
+networks:
+  wnet:
+    driver: bridge
+    name: icsnet
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+          gateway: 192.168.100.254
+    driver_opts:
+      com.docker.network.bridge.name: br_icsnet
+  fnet:
+    driver: bridge
+    name: phynet
+    ipam:
+      config: 
+      - subnet: 192.168.101.0/24
+        gateway: 192.168.101.254
+    driver_opts:
+      com.docker.network.bridge.name: br_phynet
+
+volumes:
+  scada_databases:
