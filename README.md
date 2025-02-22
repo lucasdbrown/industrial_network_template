@@ -13,4 +13,4 @@ Simulated OT Network Template for OT Security Competitions
 
 
 ## Credit
-- Couldn't have made this thesis without the creation of Virtue Pot by Nikhil Karakuchi (https://github.com/0xnkc/virtuepot/), you can find his Master's Thesis paper on VirtuePot here: https://thesis.unipd.it/handle/20.500.12608/71043
+- Couldn't have made this without the creation of Virtue Pot by Nikhil Karakuchi (https://github.com/0xnkc/virtuepot/), you can find his Master's Thesis paper on VirtuePot here: https://thesis.unipd.it/handle/20.500.12608/71043
