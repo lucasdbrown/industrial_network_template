@@ -1,0 +1,13 @@
+services:
+  frr_router:
+    image: frrouting/frr:latest
+    container_name: frr_router
+    privileged: true
+    restart: always
+  client_1:
+    image: alpine:latest
+    container_name: client_1
+    
+networks:
+  enterprise_network:
+    driver: bridge
