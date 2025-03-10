@@ -2,8 +2,14 @@
 Simulated OT Network Template for OT Security Competitions
 
 
-## Setting up your OT Network
-- Go to the `docs` folder and go through all the individual markdown files.
+## Setting up your own OT Network
+- git clone the repo and then remove the `.git` directory with `rm -rf .git`
+- Then do the process of starting the new repo:
+-  `git init`
+-  `git add .`
+-  `git commit -m "New Repo"`
+
+- Then go to the `docs` folder and go through all the individual markdown files.
 
 
 
