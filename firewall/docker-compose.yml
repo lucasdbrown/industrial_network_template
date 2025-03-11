@@ -1,0 +1,15 @@
+services:
+  docker-firewall:
+    image: debian:latest  # Or use alpine for a smaller image
+    container_name: docker-firewall
+    cap_add:
+      - NET_ADMIN  # Allows modification of network settings
+      - NET_RAW    # Allows packet filtering
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.254  # Acts as Enterprise gateway
+      idmz_network:
+        ipv4_address: 192.168.20.254  # Acts as IDMZ gateway
+      industrial_network:
+        ipv4_address: 192.168.30.254  # Acts as OT gateway
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
