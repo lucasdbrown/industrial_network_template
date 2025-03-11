@@ -1,5 +1,5 @@
-# OT Virtualized Network Template
-Simulated OT Network Template for OT Security Competitions
+# Industrial Virtualized Network Template
+Simulated Industrial Network Template for OT Security Competitions or Projects
 
 
 ## Setting up your own OT Network
@@ -14,9 +14,10 @@ Simulated OT Network Template for OT Security Competitions
 
 
 ## Guide for how to make your own OT Network using this template
-- Make your own simulated python components and add there configurations to the `docker-compose.yml` in the `simulated_components` folder
+- Make your own simulated python components and add their configurations to the `docker-compose.yml` in the `simulated_components` folder
 
 
 
 ## Credit
 - Couldn't have made this without the creation of Virtue Pot by Nikhil Karakuchi (https://github.com/0xnkc/virtuepot/), you can find his Master's Thesis paper on VirtuePot here: https://thesis.unipd.it/handle/20.500.12608/71043
+- As well as the diagrams throughout the Industrial Cybersecurity (Second Edition) book by Pascal Ackerman & Packt
