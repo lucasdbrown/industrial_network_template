@@ -16,3 +16,11 @@ services:
     volumes:
       - ./firewall/rules.sh:/firewall/rules.sh  # Mount the firewall script inside the container
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+
+networks:
+  enterprise_network:
+    external: true
+  idmz_network:
+    external: true
+  industrial_network:
+    external: true
