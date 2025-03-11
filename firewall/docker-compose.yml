@@ -1,6 +1,6 @@
 services:
   docker-firewall:
-    image: debian:latest  # Or use alpine for a smaller image
+    image: debian:latest  
     container_name: docker-firewall
     cap_add:
       - NET_ADMIN  # Allows modification of network settings
