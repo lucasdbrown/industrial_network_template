@@ -28,8 +28,8 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "5000:5000"
     networks:
       industrial_network:
         ipv4_address: 192.168.30.11
