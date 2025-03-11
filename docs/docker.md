@@ -1,3 +1,22 @@
+# Docker Trouble Shooting with this Project
+===========================================
+
+If you get an error like "Pool overlaps with other one on this address space", it probably has something to do with one of your docker networks is conflicting with an existing network in Docker's address space.
+
+To list the docker networks that currently on your machine, run the command `docker network ls`
+
+A quick fix is to run the command `docker network prune`
+
+
+
+
+
+
+
+
+
+
+
 # Installation of Docker using the repository
 ===========================================
 

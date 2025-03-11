@@ -1,13 +1,17 @@
 services:
   historian-db:
-    image: ghcr.io/pi-system/pi-historian
+    image: influxdb:latest
     container_name: historian-db
     restart: always
     environment:
-      - HISTORIAN_DB_USERNAME=admin
-      - HISTORIAN_DB_PASSWORD=securepass
+      - INFLUXDB_DB=historian
+      - INFLUXDB_USER=admin
+      - INFLUXDB_PASSWORD=securepass
     volumes:
-      - historian_data:/var/lib/historian
+      - historian_data:/var/lib/influxdb
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.2
 
   historian-client:
     image: ubuntu:latest
@@ -19,10 +23,10 @@ services:
         ipv4_address: 192.168.10.3
 
   web-app:
-    image: nginx
+    image: nginx:latest
     container_name: web-app
     volumes:
-      - ./html/:/usr/share/nginx/html:ro
+      - ./html:/usr/share/nginx/html:ro
     ports:
       - "8081:80"
     networks:
@@ -51,3 +55,10 @@ networks:
           gateway: 192.168.10.254
     driver_opts:
       com.docker.network.bridge.name: br_enterprise
+
+#networks:
+#  enterprise_network:
+#    external: true
+
+volumes:
+  historian_data:

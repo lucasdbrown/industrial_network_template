@@ -15,14 +15,17 @@ services:
         ipv4_address: 192.168.10.6
   
   historian-server:
-    image: ghcr.io/pi-system/pi-historian
+    image: influxdb:latest
     container_name: historian-server
     restart: always
     environment:
-      - HISTORIAN_DB_USERNAME=admin
-      - HISTORIAN_DB_PASSWORD=securepass
+      - INFLUXDB_DB=historian
+      - INFLUXDB_USER=admin
+      - INFLUXDB_PASSWORD=securepass
+    volumes:
+      - historian_data:/var/lib/influxdb
     networks:
-      idmz-net:
+      idmz_network:
         ipv4_address: 192.168.20.3
 
   remote-desktop-gateway:
@@ -50,6 +53,17 @@ services:
     networks:
       idmz_network:
         ipv4_address: 192.168.20.5
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=guacdb
+      - POSTGRES_USER=guacadmin
+      - POSTGRES_PASSWORD=strongpassword
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.6
     
 networks:
   idmz_network:
@@ -57,6 +71,21 @@ networks:
     ipam:
       config:
         - subnet: 192.168.20.0/24
-
+        
   enterprise_network:
-    external: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
+          gateway: 192.168.10.254
+    driver_opts:
+      com.docker.network.bridge.name: br_enterprise
+
+#networks:
+#  idmz_network:
+#    external: true
+#  enterprise_network:
+#    external: true
+
+volumes:
+  historian_data:

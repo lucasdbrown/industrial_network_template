@@ -1,0 +1,27 @@
+networks:
+  enterprise_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
+          gateway: 192.168.10.254
+    driver_opts:
+      com.docker.network.bridge.name: br_enterprise
+
+  idmz_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.20.0/24
+          gateway: 192.168.20.254
+    driver_opts:
+      com.docker.network.bridge.name: br_idmz
+
+  industrial_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.30.0/24
+          gateway: 192.168.30.254
+    driver_opts:
+      com.docker.network.bridge.name: br_industrial
