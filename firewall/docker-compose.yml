@@ -2,9 +2,10 @@ services:
   docker-firewall:
     image: debian:latest  
     container_name: docker-firewall
+    # Grants the container network modification privileges, allowing it to apply firewall rules (iptables).
     cap_add:
-      - NET_ADMIN  # Allows modification of network settings
-      - NET_RAW    # Allows packet filtering
+      - NET_ADMIN  # Allows modification of network settings (admin privileges)
+      - NET_RAW    # Allows packet filtering (raw socket operations)
     networks:
       enterprise_network:
         ipv4_address: 192.168.10.254  # Acts as Enterprise gateway
@@ -12,4 +13,6 @@ services:
         ipv4_address: 192.168.20.254  # Acts as IDMZ gateway
       industrial_network:
         ipv4_address: 192.168.30.254  # Acts as OT gateway
+    volumes:
+      - ./firewall/rules.sh:/firewall/rules.sh  # Mount the firewall script inside the container
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
