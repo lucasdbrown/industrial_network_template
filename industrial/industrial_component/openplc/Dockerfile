@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone OpenPLC repository
-COPY OpenPLC_v2/ /home/
+COPY OpenPLC_v2 /home/OpenPLC_v2
 
 # Set up OpenPLC
 WORKDIR /home/OpenPLC_v2/
