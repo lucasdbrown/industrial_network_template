@@ -1,0 +1,62 @@
+services:
+  reverse-proxy:
+    image: nginx
+    container_name: reverse-proxy
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf/:/etc/nginx/nginx.conf:ro
+    ports:
+      - "443:443"
+      - "80:80"
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.2
+      enterprise_network:
+        ipv4_address: 192.168.10.6
+  
+  historian-server:
+    image: ghcr.io/pi-system/pi-historian
+    container_name: historian-server
+    restart: always
+    environment:
+      - HISTORIAN_DB_USERNAME=admin
+      - HISTORIAN_DB_PASSWORD=securepass
+    networks:
+      idmz-net:
+        ipv4_address: 192.168.20.3
+
+  remote-desktop-gateway:
+    image: guacamole/guacamole
+    container_name: remote-desktop-gateway
+    depends_on:
+      - guacd
+      - postgres
+    environment:
+      - GUACD_HOSTNAME=guacd
+      - POSTGRES_HOSTNAME=postgres
+      - POSTGRES_DATABASE=guacdb
+      - POSTGRES_USER=guacadmin
+      - POSTGRES_PASSWORD=strongpassword
+    ports:
+      - "8443:8080"
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.4
+
+  guacd:
+    image: guacamole/guacd
+    container_name: guacd
+    restart: always
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.5
+    
+networks:
+  idmz_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.20.0/24
+
+  enterprise_network:
+    external: true

@@ -1,13 +1,53 @@
 services:
+  historian-db:
+    image: ghcr.io/pi-system/pi-historian
+    container_name: historian-db
+    restart: always
+    environment:
+      - HISTORIAN_DB_USERNAME=admin
+      - HISTORIAN_DB_PASSWORD=securepass
+    volumes:
+      - historian_data:/var/lib/historian
+
+  historian-client:
+    image: ubuntu:latest
+    container_name: historian-client
+    depends_on:
+      - historian-db
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.3
+
+  web-app:
+    image: nginx
+    container_name: web-app
+    volumes:
+      - ./html/:/usr/share/nginx/html:ro
+    ports:
+      - "8081:80"
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.4
+
   frr_router:
     image: frrouting/frr:latest
     container_name: frr_router
     privileged: true
     restart: always
+
   client_1:
     image: alpine:latest
     container_name: client_1
-    
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.5
+
 networks:
   enterprise_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
+          gateway: 192.168.10.254
+    driver_opts:
+      com.docker.network.bridge.name: br_enterprise
