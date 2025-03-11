@@ -1,20 +1,92 @@
 services:
-  dummynetworkservice:
-    image: alpine:latest
+  # dummynetworkservice:
+  #   image: alpine:latest
+  #   networks:
+  #       - enterprise_network
+  #       - idmz_network
+  #       - industrial_network
+  # Enterprise Router (Routes Enterprise <-> IDMZ)
+  enterprise_router:
+    build:
+      context: ./routers
+      dockerfile: DockerFile
+    container_name: enterprise_router
+    cap_add:
+      - NET_ADMIN
     networks:
-        - enterprise_network
-        - idmz_network
-        - industrial_network
+      enterprise_network:
+        ipv4_address: 192.168.10.10  # Gateway for Enterprise Zone
+      idmz_network:
+        ipv4_address: 192.168.20.10  # Gateway for IDMZ
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
+  # IDMZ Router (Routes IDMZ <-> Industrial)
+  idmz_router:
+    build:
+      context: ./routers
+      dockerfile: DockerFile
+    container_name: idmz_router
+    cap_add:
+      - NET_ADMIN
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.11  # Gateway for IDMZ
+      industrial_network:
+        ipv4_address: 192.168.30.10  # Gateway for Industrial Zone
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
+  # Industrial Core Switch (Main switch in Industrial Zone)
+  industrial_core_switch:
+    image: alpine
+    container_name: industrial_core_switch
+    cap_add:
+      - NET_ADMIN
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.253  # Acts as switch & gateway for industrial enclaves
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+  
+  # Assembly Switch (Enclave 1)
+  assembly_switch:
+    image: alpine
+    container_name: assembly_switch
+    cap_add:
+      - NET_ADMIN
+    networks:
+      assembly_network:
+        ipv4_address: 192.168.31.253  # Gateway for Assembly Enclave
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+
+  # Utilities Switch (Enclave 2)
+  utilities_switch:
+    image: alpine
+    container_name: utilities_switch
+    cap_add:
+      - NET_ADMIN
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.253  # Gateway for Utilities Enclave
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+
+  # Packaging Switch (Enclave 3)
+  packaging_switch:
+    image: alpine
+    container_name: packaging_switch
+    cap_add:
+      - NET_ADMIN
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.253  # Gateway for Packaging Enclave
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
 networks:
   enterprise_network:
-    name: enterprise_network  # Explicitly setting name
+    name: enterprise_network  
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.10.0/24
+          #gateway: 192.168.10.1
     driver_opts:
       com.docker.network.bridge.name: br_enterprise
 
@@ -24,6 +96,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.20.0/24
+          #gateway: 192.168.20.1
     driver_opts:
       com.docker.network.bridge.name: br_idmz
 
@@ -33,5 +106,27 @@ networks:
     ipam:
       config:
         - subnet: 192.168.30.0/24
+          #gateway: 192.168.30.1
     driver_opts:
       com.docker.network.bridge.name: br_industrial
+
+  assembly_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.31.0/24
+          gateway: 192.168.31.254
+
+  utilities_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.32.0/24
+          gateway: 192.168.32.254
+
+  packaging_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.33.0/24
+          gateway: 192.168.33.254

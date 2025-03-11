@@ -8,11 +8,11 @@ services:
       - NET_RAW    # Allows packet filtering (raw socket operations)
     networks:
       enterprise_network:
-        ipv4_address: 192.168.10.254  # Acts as Enterprise gateway
+        ipv4_address: 192.168.10.250  # Firewall inside Enterprise Zone
       idmz_network:
-        ipv4_address: 192.168.20.254  # Acts as IDMZ gateway
+        ipv4_address: 192.168.20.250  # Firewall inside IDMZ
       industrial_network:
-        ipv4_address: 192.168.30.254  # Acts as OT gateway
+        ipv4_address: 192.168.30.250  # Firewall inside Industrial Zone
     volumes:
       - ./firewall/rules.sh:/firewall/rules.sh  # Mount the firewall script inside the container
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]

@@ -1,0 +1,11 @@
+FROM frrouting/frr:latest
+
+# Copy the FRR configuration files into the container
+COPY frr.conf /etc/frr/frr.conf
+COPY setup_routes.sh /setup_routes.sh
+
+# Make the script executable
+RUN chmod +x /setup_routes.sh
+
+# Start FRR and apply routes on startup
+CMD ["/bin/sh", "-c", "/setup_routes.sh && /usr/lib/frr/frrinit.sh start && tail -f /dev/null"]

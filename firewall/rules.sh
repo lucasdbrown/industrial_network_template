@@ -21,5 +21,15 @@ iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.20.2 -p tcp --dport 443 -j ACC
 iptables -A FORWARD -s 192.168.20.2 -d 192.168.30.13 -p tcp --dport 8000 -j ACCEPT  # SCADA
 iptables -A FORWARD -s 192.168.20.2 -d 192.168.30.11 -p tcp --dport 5000 -j ACCEPT  # HMI
 
+# Industrial Segmentation: Allow SCADA to communicate with PLCs (Modbus, Port 502)
+iptables -A FORWARD -s 192.168.30.13 -d 192.168.30.20 -p tcp --dport 502 -j ACCEPT  # Modbus traffic allowed
+
 # Logging Dropped Packets (For Debugging)
 iptables -A FORWARD -j LOG --log-prefix "FW_DROP: " --log-level 4
+
+# Block Direct Enterprise to Industrial Access
+#iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.30.0/24 -j DROP
+
+# Block Unauthorized Traffic Between Industrial Devices
+#iptables -A FORWARD -s 192.168.30.0/24 -d 192.168.30.0/24 -j DROP
+
