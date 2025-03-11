@@ -15,7 +15,7 @@ services:
       - "502:502"
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.10
+        ipv4_address: 192.168.30.9
 
   openplc_hmi:
     build:
