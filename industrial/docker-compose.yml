@@ -5,7 +5,6 @@ services:
       dockerfile: Dockerfile
     stdin_open: true 
     tty: true
-    privileged: true
     container_name: openplc
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
@@ -24,7 +23,6 @@ services:
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
-    privileged: true
     entrypoint: ["gunicorn", "app:app", "-b", "0.0.0.0:5000"]
     container_name: openplc_hmi
     volumes:
@@ -43,7 +41,6 @@ services:
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
-    privileged: true
     ports:
       - "5020:502"
     networks:
@@ -78,13 +75,6 @@ services:
     networks:
       industrial_network:
         ipv4_address: 192.168.30.14
-
-networks:
-  industrial_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.30.0/24
 
 volumes:
   openplc_data:

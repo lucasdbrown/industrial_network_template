@@ -1,5 +1,12 @@
+services:
+  ubuntu:
+    image: ubuntu:latest
+    container_name: my-ubuntu-container
+
+
 networks:
   enterprise_network:
+    external: true
     driver: bridge
     ipam:
       config:
@@ -10,6 +17,7 @@ networks:
 
   idmz_network:
     driver: bridge
+    external: true
     ipam:
       config:
         - subnet: 192.168.20.0/24
@@ -19,6 +27,7 @@ networks:
 
   industrial_network:
     driver: bridge
+    external: true
     ipam:
       config:
         - subnet: 192.168.30.0/24

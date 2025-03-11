@@ -36,7 +36,6 @@ services:
   frr_router:
     image: frrouting/frr:latest
     container_name: frr_router
-    privileged: true
     restart: always
 
   client_1:
@@ -45,17 +44,6 @@ services:
     networks:
       enterprise_network:
         ipv4_address: 192.168.10.5
-
-networks:
-  enterprise_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.10.0/24
-          gateway: 192.168.10.254
-    driver_opts:
-      com.docker.network.bridge.name: br_enterprise
-
 #networks:
 #  enterprise_network:
 #    external: true

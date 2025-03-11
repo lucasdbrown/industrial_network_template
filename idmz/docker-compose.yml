@@ -64,23 +64,6 @@ services:
     networks:
       idmz_network:
         ipv4_address: 192.168.20.6
-    
-networks:
-  idmz_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.20.0/24
-        
-  enterprise_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.10.0/24
-          gateway: 192.168.10.254
-    driver_opts:
-      com.docker.network.bridge.name: br_enterprise
-
 #networks:
 #  idmz_network:
 #    external: true
