@@ -1,12 +1,16 @@
 services:
-  ubuntu:
-    image: ubuntu:latest
-    container_name: my-ubuntu-container
+  dummynetworkservice:
+    image: alpine:latest
+    networks:
+        - enterprise_network
+        - idmz_network
+        - industrial_network
+
 
 
 networks:
   enterprise_network:
-    external: true
+    name: enterprise_network  # Explicitly setting name
     driver: bridge
     ipam:
       config:
@@ -16,8 +20,8 @@ networks:
       com.docker.network.bridge.name: br_enterprise
 
   idmz_network:
+    name: idmz_network
     driver: bridge
-    external: true
     ipam:
       config:
         - subnet: 192.168.20.0/24
@@ -26,8 +30,8 @@ networks:
       com.docker.network.bridge.name: br_idmz
 
   industrial_network:
+    name: industrial_network
     driver: bridge
-    external: true
     ipam:
       config:
         - subnet: 192.168.30.0/24

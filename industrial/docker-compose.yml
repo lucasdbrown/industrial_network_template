@@ -75,7 +75,10 @@ services:
     networks:
       industrial_network:
         ipv4_address: 192.168.30.14
-
+networks:
+  industrial_network:
+    external: true
+  
 volumes:
   openplc_data:
   scada_databases:

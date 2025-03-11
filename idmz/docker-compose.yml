@@ -2,7 +2,6 @@ services:
   reverse-proxy:
     image: nginx
     container_name: reverse-proxy
-    restart: always
     volumes:
       - ./nginx/nginx.conf/:/etc/nginx/nginx.conf:ro
     ports:
@@ -17,7 +16,6 @@ services:
   historian-server:
     image: influxdb:latest
     container_name: historian-server
-    restart: always
     environment:
       - INFLUXDB_DB=historian
       - INFLUXDB_USER=admin
@@ -64,11 +62,12 @@ services:
     networks:
       idmz_network:
         ipv4_address: 192.168.20.6
-#networks:
-#  idmz_network:
-#    external: true
-#  enterprise_network:
-#    external: true
+
+networks:
+  idmz_network:
+    external: true
+  enterprise_network:
+    external: true
 
 volumes:
   historian_data:

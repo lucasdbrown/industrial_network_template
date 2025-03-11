@@ -44,9 +44,9 @@ services:
     networks:
       enterprise_network:
         ipv4_address: 192.168.10.5
-#networks:
-#  enterprise_network:
-#    external: true
+networks:
+  enterprise_network:
+    external: true
 
 volumes:
   historian_data:
