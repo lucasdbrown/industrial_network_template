@@ -1,0 +1,91 @@
+services:
+  openplc:
+    build:
+      context: ./industrial_component/openplc
+      dockerfile: Dockerfile
+    stdin_open: true 
+    tty: true
+    privileged: true
+    container_name: openplc
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - openplc_data:/home
+    ports:
+      - "8080:8080"
+      - "502:502"
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.10
+
+  openplc_hmi:
+    build:
+      context: ./industrial_component/hmi
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    privileged: true
+    entrypoint: ["gunicorn", "app:app", "-b", "0.0.0.0:5000"]
+    container_name: openplc_hmi
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "5000:5000"
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.11
+
+  tcp_modbus:
+    container_name: tcp_modbus_server
+    build:
+      context: ./industrial_component/tcp_modbus
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    privileged: true
+    ports:
+      - "5020:502"
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.12
+
+  scadalts:
+    image: scadalts/scadalts:latest
+    environment:
+      - CATALINA_OPTS=-Xmx512m -Xms512m
+    ports:
+      - "8000:8080"
+    depends_on:
+      - database
+    expose: ["8080"]
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.13
+
+  database:
+    container_name: mysql_database
+    image: mysql/mysql-server:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=scadalts
+    volumes:
+      - scada_databases:/var/lib/mysql
+    networks:
+      industrial_network:
+        ipv4_address: 192.168.30.14
+
+networks:
+  industrial_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.30.0/24
+
+volumes:
+  openplc_data:
+  scada_databases:
