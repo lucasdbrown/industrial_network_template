@@ -1,21 +1,38 @@
-from pymodbus.client.sync import ModbusTcpClient
-from datetime import datetime, time
+from pymodbus.client import ModbusTcpClient
+from pymodbus.exceptions import ModbusException, ConnectionException
 import random
 import time
 
+HOST = "192.168.30.12"  # Update if using a different IP
+PORT = 502  # Change to 1502 if remapped
 
-host = '192.168.100.46'
-port = 502
-client = ModbusTcpClient(host, port)
-while True:
-    client.connect()
-    data = random.randint(25, 35)
+client = ModbusTcpClient(host=HOST, port=PORT)
 
-    list = []
-    for i in range(2):
-        data = random.randint(10, 40)
-        list.append(data)
-    
-    wr = client.write_registers(101, list, unit=1)
+try:
+    while True:
+        print(f"🔹 Connecting to {HOST}:{PORT}...")
+        if not client.connect():
+            print("Failed to connect! Retrying in 5 seconds...")
+            time.sleep(5)
+            continue  # Retry
 
-    time.sleep(0.1)
+        modbus_values = [random.randint(10, 40) for _ in range(2)]
+        
+        try:
+            print(f"🔹 Writing {modbus_values} to register 101...")
+            response = client.write_registers(101, modbus_values, slave=1)
+
+            if response.isError():
+                print(f"Modbus Error: {response}")
+            else:
+                print(f"Successfully wrote {modbus_values}")
+
+        except (ConnectionException, ModbusException) as e:
+            print(f"Modbus Exception: {e}")
+        
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print("\n🔹 Closing Modbus client...")
+finally:
+    client.close()

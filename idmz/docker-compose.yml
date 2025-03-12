@@ -1,6 +1,8 @@
 services:
   reverse-proxy:
     image: nginx
+    stdin_open: true
+    tty: true
     container_name: reverse-proxy
     volumes:
       - ./nginx/nginx.conf/:/etc/nginx/nginx.conf:ro
