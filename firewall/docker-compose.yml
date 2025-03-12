@@ -15,6 +15,7 @@ services:
         ipv4_address: 192.168.30.250  # Firewall inside Industrial Zone
     volumes:
       - ./firewall/rules.sh:/firewall/rules.sh  # Mount the firewall script inside the container
+      - ../logs/iptables:/var/log/iptables
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
 networks:

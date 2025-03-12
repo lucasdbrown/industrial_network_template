@@ -24,8 +24,12 @@ iptables -A FORWARD -s 192.168.20.2 -d 192.168.30.11 -p tcp --dport 5000 -j ACCE
 # Industrial Segmentation: Allow SCADA to communicate with PLCs (Modbus, Port 502)
 iptables -A FORWARD -s 192.168.30.13 -d 192.168.30.20 -p tcp --dport 502 -j ACCEPT  # Modbus traffic allowed
 
-# Logging Dropped Packets (For Debugging)
+# Log dropped packets
 iptables -A FORWARD -j LOG --log-prefix "FW_DROP: " --log-level 4
+
+# Save logs explicitly (via rsyslog)
+echo ':msg, contains, "FW_DROP: " /var/log/iptables/iptables.log' > /etc/rsyslog.d/10-iptables.conf
+service rsyslog restart
 
 # Block Direct Enterprise to Industrial Access
 #iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.30.0/24 -j DROP

@@ -130,3 +130,12 @@ networks:
       config:
         - subnet: 192.168.33.0/24
           gateway: 192.168.33.254
+  
+  logging_network:
+    name: logging_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.40.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br_logging
