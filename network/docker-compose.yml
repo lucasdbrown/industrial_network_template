@@ -1,10 +1,15 @@
 services:
-  # dummynetworkservice:
-  #   image: alpine:latest
-  #   networks:
-  #       - enterprise_network
-  #       - idmz_network
-  #       - industrial_network
+  god_debug:
+    image: alpine:latest
+    networks:
+        - enterprise_network
+        - idmz_network
+        - industrial_network
+        - assembly_network
+        - utilities_network 
+        - packaging_network
+        - logging_network
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
   # Enterprise Router (Routes Enterprise <-> IDMZ)
   enterprise_router:
     build:
