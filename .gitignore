@@ -1,2 +1,4 @@
 .DS_Store
 industrial/OpenPLC_v2/
+logs/nginx/
+logs/iptables/

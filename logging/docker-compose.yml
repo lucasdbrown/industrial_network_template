@@ -14,10 +14,14 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash
+    depennds_on:
+      - elasticsearch
     networks:
       - logging_network
     ports:
       - 5000:5000
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.0.0
@@ -28,6 +32,20 @@ services:
       - logging_network
     ports:
       - 5601:5601
+
+  filebeat:
+  image: docker.elastic.co/beats/filebeat:8.0.0
+  container_name: filebeat
+  user: root
+  depends_on:
+    - logstash
+  volumes:
+    - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro  # Mount configuration file
+    - ./logs:/logs:ro                                     # Mount logs directory explicitly
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+  networks:
+    - logging_network
 
 networks:
   logging_network:
