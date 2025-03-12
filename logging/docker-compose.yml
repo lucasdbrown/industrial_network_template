@@ -14,12 +14,12 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash
-    depennds_on:
+    depends_on:
       - elasticsearch
     networks:
       - logging_network
     ports:
-      - 5000:5000
+      - 5001:5000
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
