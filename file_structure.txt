@@ -1,0 +1,64 @@
+.
+├── README.md
+├── docs
+│   ├── docker.md
+│   ├── guacamole.md
+│   ├── nginx_reverse_proxy.md
+│   ├── openplc.md
+│   └── scada.md
+├── enterprise
+│   ├── docker-compose.yml
+│   └── html
+├── file_structure.txt
+├── firewall
+│   ├── DockerFile
+│   ├── docker-compose.yml
+│   ├── firewall
+│   │   └── rules.sh
+│   └── rules.sh
+├── idmz
+│   ├── docker-compose.yml
+│   └── nginx
+│       └── nginx.conf
+├── industrial
+│   ├── docker-compose.yml
+│   ├── industrial_component
+│   │   ├── hmi
+│   │   │   ├── Dockerfile
+│   │   │   ├── app.py
+│   │   │   ├── docker_entrypoint.sh
+│   │   │   ├── requirements.txt
+│   │   │   ├── static
+│   │   │   │   ├── css
+│   │   │   │   │   └── styles.css
+│   │   │   │   ├── imgs
+│   │   │   │   │   ├── siemens_logo.png
+│   │   │   │   │   ├── tank.jpeg
+│   │   │   │   │   └── user-avatar-with-check-mark.png
+│   │   │   │   └── js
+│   │   │   │       └── main.js
+│   │   │   └── templates
+│   │   │       └── index.html
+│   │   ├── openplc
+│   │   │   └── Dockerfile
+│   │   └── tcp_modbus
+│   │       ├── Dockerfile
+│   │       ├── requirements.txt
+│   │       └── tcp_modbus.py
+│   ├── scada
+│   │   ├── README.md
+│   │   └── base_scada_data.json
+│   ├── server.json
+│   └── simulated_components
+│       └── DockerFile
+├── init.sh
+├── network
+│   ├── docker-compose.yml
+│   ├── network.md
+│   └── routers
+│       ├── DockerFile
+│       ├── frr.conf
+│       └── setup_routes.sh
+└── stop.sh
+
+24 directories, 38 files
