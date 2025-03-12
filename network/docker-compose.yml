@@ -2,13 +2,22 @@ services:
   god_debug:
     image: alpine:latest
     networks:
-        - enterprise_network
-        - idmz_network
-        - industrial_network
-        - assembly_network
-        - utilities_network 
-        - packaging_network
-        - logging_network
+        - enterprise_network:
+            ipv4_address: 192.168.10.69
+        - idmz_network:
+            ipv4_address: 192.168.20.69
+        - industrial_network:
+            ipv4_address: 192.168.30.69
+        - assembly_network:
+            ipv4_address: 192.168.31.69
+        - utilities_network:
+            ipv4_address: 192.168.32.69 
+        - packaging_network:
+            ipv4_address: 192.168.33.69
+        - l3_site_operations:
+            ipv4_address: 192.168.39.69
+        - logging_network:
+            ipv4_address: 192.168.40.69
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
   # Enterprise Router (Routes Enterprise <-> IDMZ)
   enterprise_router:
@@ -135,6 +144,13 @@ networks:
       config:
         - subnet: 192.168.33.0/24
           gateway: 192.168.33.254
+  
+  l3_site_operations:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.39.0/24
+          gateway: 192.168.39.254 
   
   logging_network:
     name: logging_network
