@@ -9,7 +9,7 @@ docker compose -f industrial/docker-compose.yml up --build -d
 # Wait for all of them to finish and output running containers
 wait
 docker ps
-sleep 15
+read -rp "Press Any Key to Continue"
 
 # Turn off all the systems
 docker compose -f network/docker-compose.yml down &> /dev/null
@@ -19,6 +19,6 @@ docker compose -f firewall/docker-compose.yml down &> /dev/null
 docker compose -f industrial/docker-compose.yml down &> /dev/null
 
 # Cleaning up the run 
-docker system prune -a &> /dev/null
+docker system prune -af &> /dev/null
 wait
 echo "All containers down and pruned"
