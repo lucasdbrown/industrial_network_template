@@ -1,8 +1,8 @@
 services:
   openplc:
     build:
-      context: ./industrial_component/openplc
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: industrial_component/openplc/Dockerfile
     stdin_open: true 
     tty: true
     container_name: openplc

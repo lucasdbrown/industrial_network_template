@@ -33,6 +33,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy OpenPLC
+COPY OpenPLC_v2 /home/OpenPLC_v2
+
 # Set up OpenPLC
 WORKDIR /home/OpenPLC_v2/
 RUN chmod +x ./build.sh
