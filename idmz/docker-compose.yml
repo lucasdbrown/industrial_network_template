@@ -6,7 +6,7 @@ services:
     container_name: reverse-proxy
     volumes:
       - ./nginx/nginx.conf/:/etc/nginx/nginx.conf:ro
-      - ../logs/nginx:/var/log/nginx
+      - ../logging/logs/nginx:/var/log/nginx
     ports:
       - "443:443"
       - "80:80"
