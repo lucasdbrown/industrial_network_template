@@ -19,6 +19,7 @@ docker compose -f firewall/docker-compose.yml down &> /dev/null
 docker compose -f industrial/docker-compose.yml down &> /dev/null
 
 # Cleaning up the run 
+echo "All containers Down"
 docker system prune -af &> /dev/null
 wait
-echo "All containers down and pruned"
+echo "System Prune Done"
