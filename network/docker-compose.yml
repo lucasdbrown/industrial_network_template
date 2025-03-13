@@ -8,12 +8,12 @@ services:
           ipv4_address: 192.168.20.69
         industrial_network:
           ipv4_address: 192.168.30.69
-        assembly_network:
-          ipv4_address: 192.168.31.69
-        utilities_network:
-          ipv4_address: 192.168.32.69 
-        packaging_network:
-          ipv4_address: 192.168.33.69
+        # assembly_network:
+        #   ipv4_address: 192.168.31.69
+        # utilities_network:
+        #   ipv4_address: 192.168.32.69 
+        # packaging_network:
+        #   ipv4_address: 192.168.33.69
         l3_site_operations:
           ipv4_address: 192.168.39.69
         logging_network:
@@ -61,37 +61,37 @@ services:
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
   
   # Assembly Switch (Enclave 1)
-  assembly_switch:
-    image: alpine
-    container_name: assembly_switch
-    cap_add:
-      - NET_ADMIN
-    networks:
-      assembly_network:
-        ipv4_address: 192.168.31.253  # Gateway for Assembly Enclave
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+  # assembly_switch:
+  #   image: alpine
+  #   container_name: assembly_switch
+  #   cap_add:
+  #     - NET_ADMIN
+  #   networks:
+  #     assembly_network:
+  #       ipv4_address: 192.168.31.253  # Gateway for Assembly Enclave
+  #   entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
-  # Utilities Switch (Enclave 2)
-  utilities_switch:
-    image: alpine
-    container_name: utilities_switch
-    cap_add:
-      - NET_ADMIN
-    networks:
-      utilities_network:
-        ipv4_address: 192.168.32.253  # Gateway for Utilities Enclave
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+  # # Utilities Switch (Enclave 2)
+  # utilities_switch:
+  #   image: alpine
+  #   container_name: utilities_switch
+  #   cap_add:
+  #     - NET_ADMIN
+  #   networks:
+  #     utilities_network:
+  #       ipv4_address: 192.168.32.253  # Gateway for Utilities Enclave
+  #   entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
-  # Packaging Switch (Enclave 3)
-  packaging_switch:
-    image: alpine
-    container_name: packaging_switch
-    cap_add:
-      - NET_ADMIN
-    networks:
-      packaging_network:
-        ipv4_address: 192.168.33.253  # Gateway for Packaging Enclave
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+  # # Packaging Switch (Enclave 3)
+  # packaging_switch:
+  #   image: alpine
+  #   container_name: packaging_switch
+  #   cap_add:
+  #     - NET_ADMIN
+  #   networks:
+  #     packaging_network:
+  #       ipv4_address: 192.168.33.253  # Gateway for Packaging Enclave
+  #   entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
 networks:
   enterprise_network:

@@ -35,11 +35,6 @@ services:
       enterprise_network:
         ipv4_address: 192.168.10.4
 
-  frr_router:
-    image: frrouting/frr:latest
-    container_name: frr_router
-    restart: always
-
   client_1:
     image: alpine:latest
     stdin_open: true
