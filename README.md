@@ -9,12 +9,19 @@ Simulated Industrial Network Template for OT Security Competitions or Projects
 -  `git add .`
 -  `git commit -m "New Repo"`
 
-- Then go to the `docs` folder and go through all the individual markdown files.
+## Running or Testing the OT Network
+```bash
+chmod +x testing.sh
+./testing.sh
+```
+
+## For documentation 
+- Go to the `docs` folder 
 
 
 
 ## Guide for how to make your own OT Network using this template
-- Make your own simulated python components and add their configurations to the `docker-compose.yml` in the `simulated_components` folder
+- Make your own simulated python components and add their configurations to the `docker-compose.yml` in the folder where your simulated components are
 
 
 
