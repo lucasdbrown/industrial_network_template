@@ -7,7 +7,7 @@ Be in network-god_debug and do `apk add curl`
 ping 192.168.20.3 
 
 #### SSH attempt (port 22) to blocked subnet 
-nc -vz 192.168.30.11 22
+nc -vz 192.168.31.2 22
 
 cat logging/logs/iptables/iptables.log
 

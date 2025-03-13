@@ -15,7 +15,7 @@ services:
       - "5020:502"
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.9
+        ipv4_address: 192.168.31.1
 
   openplc_hmi:
     build:
@@ -32,7 +32,7 @@ services:
     #   - "5000:5000"
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.11
+        ipv4_address: 192.168.31.2
 
   tcp_modbus:
     container_name: tcp_modbus_server
@@ -47,7 +47,7 @@ services:
       - "502:502"
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.12
+        ipv4_address: 192.168.31.3
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   scadalts:
@@ -61,7 +61,7 @@ services:
     expose: ["8080"]
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.13
+        ipv4_address: 192.168.32.1
 
   database:
     container_name: mysql_database
@@ -77,7 +77,7 @@ services:
       - scada_databases:/var/lib/mysql
     networks:
       industrial_network:
-        ipv4_address: 192.168.30.14
+        ipv4_address: 192.168.32.2
 networks:
   industrial_network:
     external: true

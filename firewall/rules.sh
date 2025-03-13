@@ -18,11 +18,11 @@ iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.20.2 -p tcp --dport 80 -j ACCE
 iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.20.2 -p tcp --dport 443 -j ACCEPT
 
 # IDMZ -> Industrial (Allow Reverse Proxy & Updates)
-iptables -A FORWARD -s 192.168.20.2 -d 192.168.30.13 -p tcp --dport 8000 -j ACCEPT  # SCADA
-iptables -A FORWARD -s 192.168.20.2 -d 192.168.30.11 -p tcp --dport 5000 -j ACCEPT  # HMI
+iptables -A FORWARD -s 192.168.20.2 -d 192.168.32.1 -p tcp --dport 8000 -j ACCEPT  # SCADA
+iptables -A FORWARD -s 192.168.20.2 -d 192.168.31.2 -p tcp --dport 5000 -j ACCEPT  # HMI
 
 # Industrial Segmentation: Allow SCADA to communicate with PLCs (Modbus, Port 502)
-iptables -A FORWARD -s 192.168.30.13 -d 192.168.30.20 -p tcp --dport 502 -j ACCEPT  # Modbus traffic allowed
+iptables -A FORWARD -s 192.168.32.1 -d 192.168.30.20 -p tcp --dport 502 -j ACCEPT  # Modbus traffic allowed
 
 # Log dropped packets
 iptables -A FORWARD -j LOG --log-prefix "FW_DROP: " --log-level 4
