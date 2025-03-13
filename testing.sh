@@ -34,7 +34,18 @@ while true; do
 
     if [[ "$service_name" == "end" ]]; then
         break
-    elif [[ " ${SERVICES[*]} " == *" $service_name "* ]]; then
+    elif [[ -z "$service_name" ]]; then
+        service_name=$last_service_name
+    fi
+
+    # Check if user entered '!' followed by a command
+    if [[ "$service_name" == !* ]]; then
+        command_to_run="${service_name:1}"  # Remove the '!' from the input
+        eval "$command_to_run"  # Execute the command
+        continue
+    fi
+
+    if [[ " ${SERVICES[*]} " == *" $service_name "* ]]; then
         echo "Rebuilding $service_name..."
         docker compose -f "$service_name/docker-compose.yml" down &> /dev/null
         docker compose -f "$service_name/docker-compose.yml" build --no-cache
@@ -43,6 +54,7 @@ while true; do
     else
         echo "Invalid service name. Available services: ${SERVICES[*]}"
     fi
+    last_service_name=$service_name
 done
 
 # Part 3: Shutdown options (Loop until valid input)
