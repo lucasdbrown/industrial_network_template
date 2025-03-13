@@ -1,61 +1,68 @@
 #!/bin/bash
 
-# Define all available services
-ALL_SERVICES=("enterprise" "idmz" "firewall" "industrial" "logging")
-ARGS=("$@")
+# List of available services
+SERVICES=("network" "enterprise" "idmz" "firewall" "industrial" "logging")
 
-# If no arguments are provided, default to all services
-if [ "$#" -eq 0 ]; then
-    ARGS=("${ALL_SERVICES[@]}")
+# If arguments are provided, use them; otherwise, default to all services
+if [ "$#" -gt 0 ]; then
+    START_SERVICES=("$@")
+else
+    START_SERVICES=("${SERVICES[@]}")
 fi
 
-# Ask the user for a list of services to rebuild
-read -rp "Enter the services to rebuild (space-separated, or leave blank for none): " update_services_input
+# Part 1: Prune and start services
+echo "Cleaning up old Docker Networks..."
+docker network prune -af &> /dev/null
+echo "Network Prune Done"
 
-# Convert the input into an array
-IFS=' ' read -r -a REBUILD_SERVICES <<< "$update_services_input"
+# Start network first (if user provided arguments, it runs separately)
+docker compose -f "network/docker-compose.yml" up -d
+echo "Network started."
 
-# Always start the network first
-docker compose -f network/docker-compose.yml up --build -d
-echo "Network started"
-
-# Start each requested service
-for arg in "${ARGS[@]}"; do
-    case "$arg" in
-        enterprise|idmz|firewall|industrial|logging)
-            # Check if the service is in the rebuild list
-            if [[ " ${REBUILD_SERVICES[@]} " =~ " ${arg} " ]]; then
-                # Clean up before starting and rebuild the service
-                docker system prune -af &> /dev/null
-                echo "Cleaned up unused Docker resources before rebuilding $arg."
-            else
-                echo "Skipping cleanup for $arg since no updates were specified."
-            fi
-
-            echo "Starting $arg..."
-            docker compose -f "$arg/docker-compose.yml" up --build -d
-            ;;
-        *)
-            echo "Unknown argument: $arg (Skipping)"
-            ;;
-    esac
+# Start specified services
+for service in "${START_SERVICES[@]}"; do
+    [[ "$service" == "network" ]] && continue
+    docker compose -f "$service/docker-compose.yml" up -d
+    echo "$service started."
 done
 
-# Wait for all services to initialize
-wait
-docker ps
-read -rp "Press Any Key to Continue"
+# Part 2: Interactive Loop for Updating Services
+echo -en "\nAvailable services: ${SERVICES[*]}"
+while true; do
+    echo -e "\nEnter a service name to rebuild, or type 'end' to proceed to shutdown:"
+    read -rp "Service to rebuild: " service_name
 
-# Stop only the selected services
-for arg in "${ARGS[@]}"; do
-    case "$arg" in
-        enterprise|idmz|firewall|industrial|logging)
-            echo "Stopping $arg..."
-            docker compose -f "$arg/docker-compose.yml" down &> /dev/null
-            ;;
-    esac
+    if [[ "$service_name" == "end" ]]; then
+        break
+    elif [[ " ${SERVICES[*]} " == *" $service_name "* ]]; then
+        echo "Rebuilding $service_name..."
+        docker compose -f "$service_name/docker-compose.yml" down &> /dev/null
+        docker compose -f "$service_name/docker-compose.yml" build --no-cache
+        docker compose -f "$service_name/docker-compose.yml" up -d
+        echo "$service_name has been rebuilt and restarted"
+    else
+        echo "Invalid service name. Available services: ${SERVICES[*]}"
+    fi
 done
 
-# Always shut down the network last
-docker compose -f network/docker-compose.yml down &> /dev/null
-echo "Network down"
+# Part 3: Shutdown options (Loop until valid input)
+while true; do
+    echo
+    read -rp "Enter 'stop' or 'down': " shutdown_choice
+
+    if [[ "$shutdown_choice" == "down" ]]; then
+        for service in "${SERVICES[@]}"; do
+            docker compose -f "$service/docker-compose.yml" down &> /dev/null
+            echo "$service shut down"
+        done
+        break
+    elif [[ "$shutdown_choice" == "stop" ]]; then
+        docker stop $(docker ps -q) &> /dev/null
+        echo "All running containers have been stopped"
+        break
+    else
+        echo "Invalid choice. Please enter 'stop' or 'down'."
+    fi
+done
+
+echo "Script execution complete."
