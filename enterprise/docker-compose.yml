@@ -2,7 +2,6 @@ services:
   historian-db:
     image: influxdb:latest
     container_name: historian-db
-    restart: always
     environment:
       - INFLUXDB_DB=historian
       - INFLUXDB_USER=admin

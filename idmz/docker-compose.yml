@@ -50,7 +50,6 @@ services:
   guacd:
     image: guacamole/guacd
     container_name: guacd
-    restart: always
     networks:
       idmz_network:
         ipv4_address: 192.168.20.5
