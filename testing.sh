@@ -1,38 +1,61 @@
-# Needs to be spun up every time
+#!/bin/bash
+
+# Define all available services
+ALL_SERVICES=("enterprise" "idmz" "firewall" "industrial" "logging")
+ARGS=("$@")
+
+# If no arguments are provided, default to all services
+if [ "$#" -eq 0 ]; then
+    ARGS=("${ALL_SERVICES[@]}")
+fi
+
+# Ask the user for a list of services to rebuild
+read -rp "Enter the services to rebuild (space-separated, or leave blank for none): " update_services_input
+
+# Convert the input into an array
+IFS=' ' read -r -a REBUILD_SERVICES <<< "$update_services_input"
+
+# Always start the network first
 docker compose -f network/docker-compose.yml up --build -d
+echo "Network started"
 
-# Specific Systems turn on
-docker compose -f enterprise/docker-compose.yml up --build -d
-docker compose -f idmz/docker-compose.yml up --build -d
-docker compose -f firewall/docker-compose.yml up --build -d
-docker compose -f industrial/docker-compose.yml up --build -d
-docker compose -f logging/docker-compose.yml up --build -d
+# Start each requested service
+for arg in "${ARGS[@]}"; do
+    case "$arg" in
+        enterprise|idmz|firewall|industrial|logging)
+            # Check if the service is in the rebuild list
+            if [[ " ${REBUILD_SERVICES[@]} " =~ " ${arg} " ]]; then
+                # Clean up before starting and rebuild the service
+                docker system prune -af &> /dev/null
+                echo "Cleaned up unused Docker resources before rebuilding $arg."
+            else
+                echo "Skipping cleanup for $arg since no updates were specified."
+            fi
 
-# Wait for all of them to finish and output running containers
+            echo "Starting $arg..."
+            docker compose -f "$arg/docker-compose.yml" up --build -d
+            ;;
+        *)
+            echo "Unknown argument: $arg (Skipping)"
+            ;;
+    esac
+done
+
+# Wait for all services to initialize
 wait
 docker ps
 read -rp "Press Any Key to Continue"
 
-# Turn off all the systems
+# Stop only the selected services
+for arg in "${ARGS[@]}"; do
+    case "$arg" in
+        enterprise|idmz|firewall|industrial|logging)
+            echo "Stopping $arg..."
+            docker compose -f "$arg/docker-compose.yml" down &> /dev/null
+            ;;
+    esac
+done
+
+# Always shut down the network last
 docker compose -f network/docker-compose.yml down &> /dev/null
-echo "network down"
-
-docker compose -f enterprise/docker-compose.yml down &> /dev/null
-echo "enterprise down"
-
-docker compose -f idmz/docker-compose.yml down &> /dev/null
-echo "idmz down"
-
-docker compose -f firewall/docker-compose.yml down &> /dev/null
-echo "firewall down"
-
-docker compose -f industrial/docker-compose.yml down &> /dev/null
-echo "industrial down"
-
-docker compose -f logging/docker-compose.yml down &> /dev/null 
-echo "logging down"
-
-# Cleaning up the run 
-docker system prune -af &> /dev/null
-wait
-echo "System Prune Done"
+echo "Network down"
