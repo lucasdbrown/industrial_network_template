@@ -10,3 +10,4 @@ List of the Routers (functions as router):
 
 Each router has a `.conf` file, build in the `network/docker-compose.yml`, and ARG (in the DockerFile and docker-compose) for the router config so it can be copied to the container's `/etc/frr` directory so the container has the configuration for the router.
 
+To check if the static routes are there, go into the container and run `ip route`
