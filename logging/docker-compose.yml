@@ -1,4 +1,15 @@
 services:
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.0.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.6
+    ports:
+      - 5601:5601
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
     container_name: elasticsearch
@@ -13,7 +24,7 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
-  logstash:
+  logstash_idmz:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_idmz
     depends_on:
@@ -26,29 +37,18 @@ services:
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
-  logstash:
+  logstash_site_operations:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_site_operations
     depends_on:
       - elasticsearch
     networks:
       site_operations_network:
-        ipv4_address: 192.168.30.5
+        ipv4_address: 192.168.30.6
     ports:
       - 5001:5000
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.0.0
-    container_name: kibana
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-    networks:
-      enterprise_network:
-        ipv4_address: 192.168.10.6
-    ports:
-      - 5601:5601
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.0.0
@@ -65,7 +65,7 @@ services:
       assembly_network:
         ipv4_address: 192.168.31.7
       utilities_network:
-        ipv4_address: 192.168.32.4
+        ipv4_address: 192.168.32.5
       packaging_network:
         ipv4_address: 192.168.33.6
 

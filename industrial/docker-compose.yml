@@ -79,7 +79,7 @@ services:
     expose: ["8080"]
     networks:
       utilities_network:
-        ipv4_address: 192.168.32.1
+        ipv4_address: 192.168.32.2
 
   database:
     container_name: mysql_database
@@ -95,23 +95,23 @@ services:
       - scada_databases:/var/lib/mysql
     networks:
       utilities_network:
-        ipv4_address: 192.168.32.2
+        ipv4_address: 192.168.32.3
     
   # bacnet_server:
   #   image: iotechsys/bacnet-server:latest
   #   container_name: bacnet_server
   #   networks:
   #     utilities_network:
-  #       ipv4_address: 192.168.32.3
+  #       ipv4_address: 192.168.32.4
 
-  rsyslog_server:
-    image: rsyslog/syslog_appliance_alpine:latest
-    container_name: rsyslog_server
-    networks:
-      utilities_network:
-        ipv4_address: 192.168.32.4
-    volumes:
-      - ./logging/logs:/var/log
+  # rsyslog_server:
+  #   image: rsyslog/syslog_appliance_alpine:latest
+  #   container_name: rsyslog_server
+  #   networks:
+  #     utilities_network:
+  #       ipv4_address: 192.168.32.5
+  #   volumes:
+  #     - ./logging/logs:/var/log
 
   # Packaging Enclave Services
   inventory_db:
@@ -142,7 +142,7 @@ services:
       USERS: "ftpuser|ftp_pass"
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.1
+        ipv4_address: 192.168.39.2
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
   automation_db:
@@ -154,7 +154,7 @@ services:
       - INFLUXDB_PASSWORD=securepass
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.2
+        ipv4_address: 192.168.39.3
   
   # automation_server:
   #   build:
