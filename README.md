@@ -1,9 +1,6 @@
 # Industrial Virtualized Network Template
 Simulated Industrial Network Template for OT Security Competitions or Projects
 
-## Diagram of OT Network
-![Image](https://github.com/user-attachments/assets/af0c0f3e-7e12-4d81-a50c-400759c1e04f)
-
 ## Setting up your own OT Network
 - git clone the repo and then remove the `.git` directory with `rm -rf .git`
 - Then do the process of starting the new repo:
@@ -20,6 +17,8 @@ chmod +x testing.sh
 ## For documentation 
 - Go to the `docs` folder 
 
+## Diagram of OT Network
+![Image](https://github.com/user-attachments/assets/af0c0f3e-7e12-4d81-a50c-400759c1e04f)
 
 
 ## Guide for how to make your own OT Network using this template
