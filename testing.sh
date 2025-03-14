@@ -50,7 +50,6 @@ while true; do
         service_names=("${last_rebuilds[@]}")    
     fi
     
-    last_rebuilds=("${service_names[@]}")
     # Execute shell command if input starts with '!'
     if [[ "${service_names[0]}" == !* ]]; then
         IFS=" " COMMAND="${service_names[*]}"  # Convert array to string
@@ -59,6 +58,7 @@ while true; do
         continue
     fi
 
+    last_rebuilds=("${service_names[@]}")
     # Check if "network" is in the rebuild list
     if [[ " ${service_names[*]} " == *" network "* ]]; then
         echo "Network is being rebuilt. Stopping all services..."
