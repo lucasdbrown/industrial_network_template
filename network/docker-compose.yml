@@ -163,6 +163,7 @@ networks:
       com.docker.network.bridge.name: br_industrial
 
   assembly_network:
+    name: assembly_network
     driver: bridge
     ipam:
       config:
@@ -170,6 +171,7 @@ networks:
         # gateway: 192.168.31.254
 
   utilities_network:
+    name: utilities_network
     driver: bridge
     ipam:
       config:
@@ -177,6 +179,7 @@ networks:
         #  gateway: 192.168.32.254
 
   packaging_network:
+    name: packaging_network
     driver: bridge
     ipam:
       config:
@@ -184,6 +187,7 @@ networks:
         #  gateway: 192.168.33.254
   
   l3_site_operations:
+    name: l3_site_operations_network
     driver: bridge
     ipam:
       config:
