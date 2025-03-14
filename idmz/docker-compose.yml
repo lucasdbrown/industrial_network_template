@@ -14,7 +14,7 @@ services:
       idmz_network:
         ipv4_address: 192.168.20.2
       enterprise_network:
-        ipv4_address: 192.168.10.6
+        ipv4_address: 192.168.10.7
   
   historian-server:
     image: influxdb:latest

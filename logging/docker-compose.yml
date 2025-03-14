@@ -30,7 +30,7 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      idmz:
+      idmz_network:
         ipv4_address: 192.168.20.8
     ports:
       - 5001:5000
@@ -44,9 +44,9 @@ services:
       - elasticsearch
     networks:
       site_operations_network:
-        ipv4_address: 192.168.30.6
+        ipv4_address: 192.168.39.6
     ports:
-      - 5001:5000
+      - 5002:5000
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
@@ -55,12 +55,14 @@ services:
     container_name: filebeat
     user: root
     depends_on:
-      - logstash
+      - logstash_idmz
+      - logstash_site_operations
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro  # Mount configuration file
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw  # Mount configuration file
       - ./logs:/logs:ro                                     # Mount logs directory explicitly
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
+    command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false"]
     networks:
       assembly_network:
         ipv4_address: 192.168.31.7
