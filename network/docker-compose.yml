@@ -108,7 +108,7 @@ services:
       utilities_network:
         ipv4_address: 192.168.32.253
       industrial_network:
-        ipv4_address: 192.168.30.250
+        ipv4_address: 192.168.30.240
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   # Packaging Switch (Enclave 3)
