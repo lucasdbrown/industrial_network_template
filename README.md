@@ -18,7 +18,7 @@ chmod +x testing.sh
 - Go to the `docs` folder 
 
 ## Diagram of OT Network
-![Image](https://github.com/user-attachments/assets/af0c0f3e-7e12-4d81-a50c-400759c1e04f)
+![Image](100_OT_Network_Template_Diagram.drawio.png)
 
 
 ## Guide for how to make your own OT Network using this template
