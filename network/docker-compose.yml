@@ -16,8 +16,6 @@ services:
           ipv4_address: 192.168.33.69
         site_operations_network:
           ipv4_address: 192.168.39.69
-        logging_network:
-          ipv4_address: 192.168.40.69
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
     
   # Enterprise Router (Routes Enterprise <-> IDMZ)
@@ -193,12 +191,3 @@ networks:
       config:
         - subnet: 192.168.39.0/24
         #  gateway: 192.168.39.254 
-  
-  logging_network:
-    name: logging_network
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.40.0/24
-    driver_opts:
-      com.docker.network.bridge.name: br_logging
