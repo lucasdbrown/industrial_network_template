@@ -156,17 +156,18 @@ services:
       site_operations_network:
         ipv4_address: 192.168.39.3
   
-  # automation_server:
-  #   build:
-  #     context: .
-  #   container_name: automation_server
-  #   networks:
-  #     site_operations:
-  #       ipv4_address: 192.168.39.3
-  #   depends_on:
-  #     - automation_db
-  #   ports:
-  #     - "8000:5000"
+  automation_server:
+    build:
+      context: ./site_operations
+      dockerfile: DockerFile
+    container_name: automation_server
+    networks:
+      site_operations_network:
+        ipv4_address: 192.168.39.4
+    depends_on:
+      - automation_db
+    ports:
+      - "8001:5000"
 
 networks:
   industrial_network:
