@@ -14,7 +14,7 @@ services:
           ipv4_address: 192.168.32.69 
         packaging_network:
           ipv4_address: 192.168.33.69
-        l3_site_operations:
+        site_operations_network:
           ipv4_address: 192.168.39.69
         logging_network:
           ipv4_address: 192.168.40.69
@@ -186,13 +186,13 @@ networks:
         - subnet: 192.168.33.0/24
         #  gateway: 192.168.33.254
   
-  l3_site_operations:
-    name: l3_site_operations_network
+  site_operations_network:
+    name: site_operations_network
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.39.0/24
-          gateway: 192.168.39.254 
+        #  gateway: 192.168.39.254 
   
   logging_network:
     name: logging_network

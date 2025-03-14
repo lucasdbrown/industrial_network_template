@@ -1,24 +1,6 @@
 services:
 
   # Assembly Enclave Services
-  openplc:
-    build:
-      context: .
-      dockerfile: industrial_component/openplc/Dockerfile
-    stdin_open: true 
-    tty: true
-    container_name: openplc
-    volumes:
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
-      - openplc_data:/home
-    ports:
-      - "8080:8080"
-      - "5020:502"
-    networks:
-      industrial_network:
-        ipv4_address: 192.168.31.1
-
   openplc_hmi:
     build:
       context: ./industrial_component/hmi
@@ -33,7 +15,7 @@ services:
     # ports:
     #   - "5000:5000"
     networks:
-      industrial_network:
+      assembly_network:
         ipv4_address: 192.168.31.2
 
   tcp_modbus:
@@ -48,9 +30,27 @@ services:
     ports:
       - "502:502"
     networks:
-      industrial_network:
+      assembly_network:
         ipv4_address: 192.168.31.3
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+
+  # openplc:
+  #   build:
+  #     context: .
+  #     dockerfile: industrial_component/openplc/Dockerfile
+  #   stdin_open: true 
+  #   tty: true
+  #   container_name: openplc
+  #   volumes:
+  #     - "/etc/timezone:/etc/timezone:ro"
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #     - openplc_data:/home
+  #   ports:
+  #     - "8080:8080"
+  #     - "5020:502"
+  #   networks:
+  #     assembly_network:
+  #       ipv4_address: 192.168.31.50
 
   # zeek:
   #   image: zeek/zeek:latest
@@ -78,7 +78,7 @@ services:
       - database
     expose: ["8080"]
     networks:
-      industrial_network:
+      utilities_network:
         ipv4_address: 192.168.32.1
 
   database:
@@ -94,7 +94,7 @@ services:
     volumes:
       - scada_databases:/var/lib/mysql
     networks:
-      industrial_network:
+      utilities_network:
         ipv4_address: 192.168.32.2
     
   # bacnet_server:
@@ -141,7 +141,7 @@ services:
     environment:
       USERS: "ftpuser|ftp_pass"
     networks:
-      site_operations:
+      site_operations_network:
         ipv4_address: 192.168.39.1
 
 networks:
@@ -153,7 +153,7 @@ networks:
     external: true
   packaging_network:
     external: true
-  site_operations:
+  site_operations_network:
     external: true
   
 volumes:
