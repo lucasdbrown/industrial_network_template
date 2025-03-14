@@ -1,4 +1,6 @@
 services:
+
+  # Assembly Enclave Services
   openplc:
     build:
       context: .
@@ -50,6 +52,22 @@ services:
         ipv4_address: 192.168.31.3
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
+  # zeek:
+  #   image: zeek/zeek:latest
+  #   container_name: zeek_ids
+  #   cap_add:
+  #     - NET_RAW
+  #   network_mode: "host"
+  #   build: 
+  #    context: ./zeek/elastic
+  #    dockerfile: Dockerfile
+  #   networks:
+  #     assembly_network:
+  #       ipv4_address: 192.168.31.4
+  #   # command: zeek -i af_packet::eth0 local
+  #   entrypoint: ["zeek", "-i", "af_packet::ens160", "local" ]
+
+  # Utilities Enclave Services
   scadalts:
     image: scadalts/scadalts:latest
     environment:
@@ -78,10 +96,67 @@ services:
     networks:
       industrial_network:
         ipv4_address: 192.168.32.2
+    
+  # bacnet_server:
+  #   image: iotechsys/bacnet-server:latest
+  #   container_name: bacnet_server
+  #   networks:
+  #     utilities_network:
+  #       ipv4_address: 192.168.32.3
+
+  rsyslog_server:
+    image: rsyslog/syslog_appliance_alpine:latest
+    container_name: rsyslog_server
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.4
+    volumes:
+      - ./logging/logs:/var/log
+
+  # Packaging Enclave Services
+  inventory_db:
+    image: mysql/mysql-server:8.0
+    container_name: inventory_db
+    environment:
+      MYSQL_ROOT_PASSWORD: inventory_pass
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.4
+
+  inventory_client:
+    image: ubuntu:latest
+    container_name: inventory_client
+    stdin_open: true
+    tty: true
+    depends_on:
+      - inventory_db
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.5
+
+  # Level 3 Site Operations Services
+  ftp_server:
+    image: delfer/alpine-ftp-server:latest
+    container_name: file_server
+    environment:
+      USERS: "ftpuser|ftp_pass"
+    networks:
+      site_operations:
+        ipv4_address: 192.168.39.1
+
 networks:
   industrial_network:
+    external: true
+  assembly_network:
+    external: true
+  utilities_network:
+    external: true
+  packaging_network:
+    external: true
+  site_operations:
     external: true
   
 volumes:
   openplc_data:
   scada_databases:
+  logs:
