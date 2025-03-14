@@ -5,7 +5,9 @@ services:
     environment:
       - discovery.type=single-node
     networks:
-      - logging_network
+      idmz_network:
+        ipv4_address: 192.168.20.7
+
     ports:
       - 9200:9200
     volumes:
@@ -13,11 +15,25 @@ services:
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.0.0
-    container_name: logstash
+    container_name: logstash_idmz
     depends_on:
       - elasticsearch
     networks:
-      - logging_network
+      idmz:
+        ipv4_address: 192.168.20.8
+    ports:
+      - 5001:5000
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.0.0
+    container_name: logstash_site_operations
+    depends_on:
+      - elasticsearch
+    networks:
+      site_operations_network:
+        ipv4_address: 192.168.30.5
     ports:
       - 5001:5000
     volumes:
@@ -29,7 +45,8 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     networks:
-      - logging_network
+      enterprise_network:
+        ipv4_address: 192.168.10.6
     ports:
       - 5601:5601
 
@@ -45,10 +62,25 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - logging_network
+      assembly_network:
+        ipv4_address: 192.168.31.7
+      utilities_network:
+        ipv4_address: 192.168.32.4
+      packaging_network:
+        ipv4_address: 192.168.33.6
 
 networks:
-  logging_network:
+  enterprise_network:
+    external: true
+  idmz_network:
+    external: true
+  assembly_network:
+    external: true
+  utilities_network:
+    external: true
+  packaging_network:
+    external: true
+  site_operations_network:
     external: true
 
 volumes:
