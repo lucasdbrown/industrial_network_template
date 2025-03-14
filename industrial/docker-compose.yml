@@ -23,8 +23,8 @@ services:
     build:
       context: ./industrial_component/tcp_modbus
       dockerfile: Dockerfile
-    depends_on:
-      - openplc
+    # depends_on:
+    #   - openplc
     stdin_open: true
     tty: true
     ports:
@@ -143,6 +143,30 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.1
+
+  # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
+  automation_db:
+    image: influxdb:latest
+    container_name: automation_db
+    environment:
+      - INFLUXDB_DB=historian
+      - INFLUXDB_USER=admin
+      - INFLUXDB_PASSWORD=securepass
+    networks:
+      site_operations_network:
+        ipv4_address: 192.168.39.2
+  
+  # automation_server:
+  #   build:
+  #     context: .
+  #   container_name: automation_server
+  #   networks:
+  #     site_operations:
+  #       ipv4_address: 192.168.39.3
+  #   depends_on:
+  #     - automation_db
+  #   ports:
+  #     - "8000:5000"
 
 networks:
   industrial_network:

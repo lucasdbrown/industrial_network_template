@@ -1,6 +1,8 @@
 services:
   docker-firewall:
-    image: debian:latest  
+    build:
+      context: .
+      dockerfile: DockerFile
     container_name: docker-firewall
     # Grants the container network modification privileges, allowing it to apply firewall rules (iptables).
     cap_add:
