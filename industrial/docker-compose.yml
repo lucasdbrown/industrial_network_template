@@ -168,6 +168,16 @@ services:
       - automation_db
     ports:
       - "8001:5000"
+    
+  # telegraf_forwarder:
+  #   image: telegraf:latest
+  #   container_name: telegraf_forwarder
+  #   volumes:
+  #     - ./site_operations/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  #   networks:
+  #     site_operations_network:
+  #       ipv4_address: 192.168.39.7
+  #   #entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
 networks:
   industrial_network:
