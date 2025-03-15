@@ -137,9 +137,9 @@ services:
   # Level 3 Site Operations Services
   ftp_server:
     image: delfer/alpine-ftp-server:latest
-    container_name: file_server
+    container_name: ftp_server
     environment:
-      USERS: "ftpuser|ftp_pass"
+      USERS: "frp_user|alpine_fun_password123!"
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.2
@@ -155,7 +155,7 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.3
-  
+ 
   automation_server:
     build:
       context: ./site_operations
@@ -178,6 +178,32 @@ services:
   #     site_operations_network:
   #       ipv4_address: 192.168.39.7
   #   #entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+
+  opc_ua_server:
+    image: open62541/open62541:latest
+    container_name: opc_ua_server
+    ports:
+      - "4840:4840"  # OPC UA default port
+    environment:
+      - OPCUA_SERVER_NAME=Utilities_Server
+      - OPCUA_NAMESPACE_URI=http://example.com/opcua
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.6
+
+  rfid_database:
+    image: rfidapp/rfid-app-database
+    container_name: rfid_database
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.3
+  
+  bacnet_server:
+    image: iconics/bacnet:10.97rlp4
+    container_name: bacnet_server
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.4
 
 networks:
   industrial_network:
