@@ -31,18 +31,19 @@ for service in "${START_SERVICES[@]}"; do
     RUNNING_SERVICES+=("$service")
 done
 
+# TODO: Actually get what services are running
 # Output running services
-echo -e "\nCurrently running services:"
-for service in "${RUNNING_SERVICES[@]}"; do
-    echo " - $service"
-done
+# echo -e "\nCurrently running services:"
+# for service in "${RUNNING_SERVICES[@]}"; do
+#     echo " - $service"
+# done
 
 # Part 2: Interactive Loop for Updating Services
 last_rebuilds=("${RUNNING_SERVICES[@]}")
 while true; do
     echo -e "\nEnter service(s) to rebuild (space-separated), 'end' to proceed, or '!' to run a command:"
     read -rp "Services to rebuild: " -a service_names
-
+    echo $service_names
     # Exit condition
     if [[ "${service_names[0]}" == "end" ]]; then
         break
@@ -59,8 +60,7 @@ while true; do
     fi
 
     last_rebuilds=("${service_names[@]}")
-    # Check if "network" is in the rebuild list
-    if [[ " ${service_names[*]} " == *" network "* ]]; then
+    if [[ " ${service_names[*]} " == *"network"* ]]; then
         echo "Network is being rebuilt. Stopping all services..."
         for service in "${RUNNING_SERVICES[@]}"; do
             docker compose -f "$service/docker-compose.yml" down &> /dev/null
@@ -76,20 +76,34 @@ while true; do
         docker compose -f "network/docker-compose.yml" up -d
         echo "Network restarted."
 
-        # Remove "network" from the rebuild list to avoid processing it twice
-        service_names=("${service_names[@]/network}") 
+        for ((i = 0; i < ${#RUNNING_SERVICES[@]}; i++)); do
+          for item2 in "${service_names[@]}"; do
+            if [[ "${RUNNING_SERVICES[i]}" == "$item2" ]]; then
+              unset 'RUNNING_SERVICES[i]'
+              break
+            fi
+          done
+        done
+        RUNNING_SERVICES=("${RUNNING_SERVICES[@]}")
+
+        for service in "${RUNNING_SERVICES[@]}"; do
+            [[ "$service" == "network" ]] && continue
+            # docker compose -f "$service/docker-compose.yml" build --no-cache 
+            docker compose -f "$service/docker-compose.yml" up -d
+            echo "$service started."
+        done
     fi
 
     # Validate services
     for service in "${service_names[@]}"; do
         if [[ " ${SERVICES[*]} " == *" $service "* ]]; then
+            [[ "$service" == "network" ]] && continue
             echo "Rebuilding $service..."
             docker compose -f "$service/docker-compose.yml" down &> /dev/null
             docker compose -f "$service/docker-compose.yml" build --no-cache
             docker compose -f "$service/docker-compose.yml" up -d
             echo "$service has been rebuilt and restarted."
 
-            # Update running services
             if [[ ! " ${RUNNING_SERVICES[*]} " =~ " $service " ]]; then
                 RUNNING_SERVICES+=("$service")
             fi
