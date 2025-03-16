@@ -1,61 +1,74 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# List of available services
-SERVICES=("network" "enterprise" "idmz" "firewall" "industrial" "logging")
+input_file="services.txt"
+declare -A SERVICE_COMPOSE_MAP
+declare -A COMPOSE_MAP
+current_compose=""
 
-# If arguments are provided, use them; otherwise, default to all services
+while IFS= read -r line; do
+  if [[ $line == ./* ]]; then
+    current_compose="$line"
+    compose_name=$(basename "$(dirname "$line")")
+    COMPOSE_MAP["$compose_name"]="$current_compose"
+  else
+    SERVICE_COMPOSE_MAP["$line"]="$current_compose"
+  fi
+done < "$input_file"
+
+SERVICES=("${!SERVICE_COMPOSE_MAP[@]}")
+COMPOSES=("${!COMPOSE_MAP[@]}")
+
 if [ "$#" -gt 0 ]; then
-    START_SERVICES=("network" "$@")  # Always include network
+    last_rebuilds=("$@")
+    START_SERVICES=("network" "$@")
 else
-    START_SERVICES=("${SERVICES[@]}")
+    START_SERVICES=("${COMPOSES[@]}")
+    last_rebuilds=("$START_SERVICES[@]")
 fi
 
-# Track running services
 RUNNING_SERVICES=()
+RUNNING_COMPOSES=()
 
 # Part 1: Prune and start services
 echo "Cleaning up old Docker Networks..."
 docker network prune -af &> /dev/null
 echo "Network Prune Done"
 
-# Start network first
-docker compose -f "network/docker-compose.yml" up -d
+# TODO: Pick either god_debug or all of network to spin up every time
+docker compose -f "${COMPOSE_MAP["network"]}" up -d
 echo "Network started."
-RUNNING_SERVICES+=("network")
+RUNNING_COMPOSES+=("network")
 
-# Start specified services
 for service in "${START_SERVICES[@]}"; do
     [[ "$service" == "network" ]] && continue
-    docker compose -f "$service/docker-compose.yml" up -d
-    echo "$service started."
-    RUNNING_SERVICES+=("$service")
+    if [[ -n "${SERVICE_COMPOSE_MAP[$service]}" ]]; then
+        docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" up -d "$service"
+        echo "$service started."
+        RUNNING_SERVICES+=("$service")
+    elif [[ -n "${COMPOSE_MAP[$service]}" ]]; then
+        docker compose -f "${COMPOSE_MAP[$service]}" up -d
+        echo "Compose file $service started."
+        RUNNING_COMPOSES+=("$service")
+    else
+        echo "Invalid service or compose: $service. Available services: ${SERVICES[*]}, Available composes: ${COMPOSES[*]}"
+    fi
 done
 
-# TODO: Actually get what services are running
-# Output running services
-# echo -e "\nCurrently running services:"
-# for service in "${RUNNING_SERVICES[@]}"; do
-#     echo " - $service"
-# done
-
 # Part 2: Interactive Loop for Updating Services
-last_rebuilds=("${RUNNING_SERVICES[@]}")
 while true; do
-    echo -e "\nEnter service(s) to rebuild (space-separated), 'end' to proceed, or '!' to run a command:"
+    echo -e "\nEnter service(s) or compose(s) to rebuild (space-separated), 'end' to proceed, or '!' to run a command:"
     read -rp "Services to rebuild: " -a service_names
-    echo $service_names
-    # Exit condition
+
     if [[ "${service_names[0]}" == "end" ]]; then
         break
     elif [[ -z "${service_names[*]}" ]]; then
-        service_names=("${last_rebuilds[@]}")    
+        service_names=("${last_rebuilds[@]}")
     fi
     
-    # Execute shell command if input starts with '!'
     if [[ "${service_names[0]}" == !* ]]; then
-        IFS=" " COMMAND="${service_names[*]}"  # Convert array to string
+        IFS=" " COMMAND="${service_names[*]}"
         run_command=${COMMAND:1}
-        eval "$run_command"  # Execute the command
+        eval "$run_command"
         continue
     fi
 
@@ -63,7 +76,7 @@ while true; do
     if [[ " ${service_names[*]} " == *"network"* ]]; then
         echo "Network is being rebuilt. Stopping all services..."
         for service in "${RUNNING_SERVICES[@]}"; do
-            docker compose -f "$service/docker-compose.yml" down &> /dev/null
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" down &> /dev/null
             echo "$service shut down."
         done
 
@@ -72,8 +85,8 @@ while true; do
         echo "Network prune done."
 
         echo "Restarting network..."
-        docker compose -f "network/docker-compose.yml" build --no-cache 
-        docker compose -f "network/docker-compose.yml" up -d
+        docker compose -f "${SERVICE_COMPOSE_MAP["network"]}" build --no-cache 
+        docker compose -f "${SERVICE_COMPOSE_MAP["network"]}" up -d
         echo "Network restarted."
 
         for ((i = 0; i < ${#RUNNING_SERVICES[@]}; i++)); do
@@ -88,27 +101,37 @@ while true; do
 
         for service in "${RUNNING_SERVICES[@]}"; do
             [[ "$service" == "network" ]] && continue
-            # docker compose -f "$service/docker-compose.yml" build --no-cache 
-            docker compose -f "$service/docker-compose.yml" up -d
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" up -d
             echo "$service started."
         done
     fi
 
-    # Validate services
+    # Validate services or composes
     for service in "${service_names[@]}"; do
-        if [[ " ${SERVICES[*]} " == *" $service "* ]]; then
+        if [[ -n "${SERVICE_COMPOSE_MAP[$service]}" ]]; then
             [[ "$service" == "network" ]] && continue
             echo "Rebuilding $service..."
-            docker compose -f "$service/docker-compose.yml" down &> /dev/null
-            docker compose -f "$service/docker-compose.yml" build --no-cache
-            docker compose -f "$service/docker-compose.yml" up -d
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" down $service &> /dev/null
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" build $service --no-cache
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" up -d "$service"
             echo "$service has been rebuilt and restarted."
 
             if [[ ! " ${RUNNING_SERVICES[*]} " =~ " $service " ]]; then
                 RUNNING_SERVICES+=("$service")
             fi
+        elif [[ -n "${COMPOSE_MAP[$service]}" ]]; then
+            echo "Rebuilding compose $service..."
+            docker compose -f "${COMPOSE_MAP[$service]}" down &> /dev/null
+            docker compose -f "${COMPOSE_MAP[$service]}" build --no-cache
+            docker compose -f "${COMPOSE_MAP[$service]}" up -d
+            echo "Compose $service has been rebuilt and restarted."
+
+            if [[ ! " ${RUNNING_COMPOSES[*]} " =~ " $service " ]]; then
+                RUNNING_COMPOSES+=("$service")
+                # TODO: Also update the running services here
+            fi
         else
-            echo "Invalid service: $service. Available services: ${SERVICES[*]}"
+            echo "Invalid service or compose: $service. Available services: ${SERVICES[*]}, Available composes: ${COMPOSES[*]}"
         fi
     done
 done
@@ -116,16 +139,22 @@ done
 # Part 3: Shutdown options (Loop until valid input)
 while true; do
     echo -e "\nCurrently running services: ${RUNNING_SERVICES[*]}"
+    echo -e "Currently running composes: ${RUNNING_COMPOSES[*]}"
     read -rp "Enter 'stop' or 'down' to shut down services: " shutdown_choice
 
     if [[ "$shutdown_choice" == "down" ]]; then
+        for compose in "${RUNNING_COMPOSES[@]}"; do # TODO: Make sure running services/compose is correct for down
+            docker compose -f "${COMPOSE_MAP[$compose]}" down &> /dev/null
+            echo "Compose $compose shut down."
+        done
+
         for service in "${RUNNING_SERVICES[@]}"; do
-            docker compose -f "$service/docker-compose.yml" down &> /dev/null
-            echo "$service shut down."
+            docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" down $service &> /dev/null
+            echo "Service $service shut down."
         done
         break
     elif [[ "$shutdown_choice" == "stop" ]]; then
-        docker stop $(docker ps -q) &> /dev/null
+        docker stop $(docker ps -q)
         echo "All running containers have been stopped."
         break
     else
