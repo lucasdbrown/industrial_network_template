@@ -18,7 +18,7 @@ services:
       - "http.host=0.0.0.0"
       - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
-      - 'ES_JAVA_OPTS="-Xms512m -Xmx512m"'
+      # - 'ES_JAVA_OPTS="-Xms512m -Xmx512m"'
     networks:
       idmz_network:
         ipv4_address: 192.168.20.7
@@ -78,7 +78,7 @@ services:
     image: telegraf:latest
     container_name: telegraf_forwarder
     restart: unless-stopped
-    # user: telegraf:995 #you need to find the GID of Docker if not added to Sudo group
+    # user: telegraf:999 #you need to find the GID of Docker if not added to Sudo group, found user ID by getent passwd
     volumes:
       - './telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
       # - '/:/hostfs:ro' # to monitor docker-vm
@@ -92,8 +92,8 @@ services:
         - HOST_RUN=/hostfs/run
         - HOST_MOUNT_PREFIX=/hostfs
     networks:
-      site_operations_network:
-        ipv4_address: 192.168.39.7
+      utilities_network:
+        ipv4_address: 192.168.32.7
     # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   grafana:

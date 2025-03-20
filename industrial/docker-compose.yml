@@ -104,7 +104,7 @@ services:
       utilities_network:
         ipv4_address: 192.168.32.4
     ports:
-      - ["47808:47808"]
+      - "47808:47808"
 
   # rsyslog_server:
   #   image: rsyslog/syslog_appliance_alpine:latest
@@ -164,6 +164,7 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.2
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
   automation_db:
