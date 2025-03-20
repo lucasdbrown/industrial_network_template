@@ -194,11 +194,13 @@ services:
     restart: unless-stopped
     ports:
       - "5901:5901"  # VNC Access
-      - "8080:80"    # Web-based noVNC Access
+      - "8082:80"    # Web-based noVNC Access
     environment:
       - VNC_PASSWORD=securepassword
     networks:
-      - industrial_network
+      site_operations_network:
+        ipv4_address: 192.168.39.5
+
     
   # telegraf_forwarder:
   #   image: telegraf:latest

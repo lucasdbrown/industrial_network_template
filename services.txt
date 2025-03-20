@@ -32,6 +32,7 @@ automation_server
 opc_ua_server
 rfid_database
 bacnet_server
+vds
 ./logging/docker-compose.yml
 kibana
 elasticsearch
