@@ -39,3 +39,5 @@ elasticsearch
 logstash_idmz
 logstash_site_operations
 filebeat
+telegraf_forwarder
+grafana

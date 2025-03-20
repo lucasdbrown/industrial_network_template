@@ -103,6 +103,8 @@ services:
     networks:
       utilities_network:
         ipv4_address: 192.168.32.4
+    ports:
+      - ["47808:47808"]
 
   # rsyslog_server:
   #   image: rsyslog/syslog_appliance_alpine:latest
@@ -189,7 +191,7 @@ services:
       - "8001:5000"
 
   vds:
-    image: dorowu/ubuntu-desktop-lxde-vnc  # Prebuilt lightweight Ubuntu Desktop
+    image: dorowu/ubuntu-desktop-lxde-vnc  # Prebuilt lightweight Ubuntu Desktop that has 4 virtual desktops
     container_name: vds
     restart: unless-stopped
     ports:
@@ -200,17 +202,6 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.5
-
-    
-  # telegraf_forwarder:
-  #   image: telegraf:latest
-  #   container_name: telegraf_forwarder
-  #   volumes:
-  #     - ./site_operations/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-  #   networks:
-  #     site_operations_network:
-  #       ipv4_address: 192.168.39.7
-  #   #entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
 networks:
   industrial_network:
