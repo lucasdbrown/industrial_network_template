@@ -22,6 +22,7 @@ docker-firewall
 ./industrial/docker-compose.yml
 openplc_hmi
 tcp_modbus
+openplc
 scadalts
 database
 inventory_db
@@ -32,12 +33,9 @@ automation_server
 opc_ua_server
 rfid_database
 bacnet_server
-vds
 ./logging/docker-compose.yml
 kibana
 elasticsearch
 logstash_idmz
 logstash_site_operations
 filebeat
-telegraf_forwarder
-grafana
