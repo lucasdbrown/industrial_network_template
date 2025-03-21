@@ -4,3 +4,4 @@ logging/logs/nginx/
 logging/logs/iptables/
 industrial/db_data
 industrial/db_conf
+industrial/tomcat_log
