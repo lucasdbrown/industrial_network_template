@@ -80,6 +80,7 @@ services:
     volumes:
       - ./tomcat_log:/usr/local/tomcat/logs:rw
       - scada_databases:/var/lib/mysql
+      - ./industrial/scada/base_scada.json:/usr/local/tomcat/conf/base_scada.json:ro
     links:
       - database:database
     command:
