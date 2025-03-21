@@ -2,3 +2,5 @@
 industrial/OpenPLC_v2/
 logging/logs/nginx/
 logging/logs/iptables/
+industrial/db_data
+industrial/db_conf

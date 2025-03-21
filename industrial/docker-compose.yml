@@ -71,28 +71,45 @@ services:
   scadalts:
     image: scadalts/scadalts:latest
     environment:
-      - CATALINA_OPTS=-Xmx512m -Xms512m
-    ports:
-      - "8000:8080"
-    depends_on:
+      - CATALINA_OPTS=-Xmx2G -Xms2G
+    ports: 
+      - "0.0.0.0:8000:8080"
+    depends_on: 
       - database
-    expose: ["8080"]
+    expose: ["8080", "8000"]
+    volumes:
+      - ./tomcat_log:/usr/local/tomcat/logs:rw
+      - scada_databases:/var/lib/mysql
+    links:
+      - database:database
+    command:
+      - /usr/bin/wait-for-it
+      - --host=database
+      - --port=3306
+      - --timeout=30
+      - --strict
+      - --
+      - /usr/local/tomcat/bin/catalina.sh
+      - run
     networks:
       utilities_network:
         ipv4_address: 192.168.32.2
-
+    
   database:
     container_name: mysql_database
-    image: mysql/mysql-server:8.0
+    image: mysql/mysql-server:8.0.32
     ports:
-      - "3307:3306"
-    environment:
+      - "0.0.0.0:3307:3306"
+    environment: 
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=scadalts
+    expose: ["3307"]
     volumes:
-      - scada_databases:/var/lib/mysql
+      - ./db_data:/var/lib/mysql:rw
+      - ./db_conf:/etc/mysql:ro
+    command: --log_bin_trust_function_creators=1
     networks:
       utilities_network:
         ipv4_address: 192.168.32.3
