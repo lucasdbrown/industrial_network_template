@@ -29,7 +29,6 @@ inventory_db
 inventory_client
 ftp_server
 automation_db
-automation_server
 opc_ua_server
 rfid_database
 bacnet_server

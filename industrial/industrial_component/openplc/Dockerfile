@@ -1,7 +1,4 @@
-FROM ubuntu:24.04
-
-# Set non-interactive mode
-ENV DEBIAN_FRONTEND=noninteractive
+FROM ubuntu:xenial
 
 USER root
 WORKDIR /root/
@@ -37,15 +34,13 @@ RUN apt-get install -y build-essential \
 RUN sudo apt-get install -y build-essential pkg-config bison flex autoconf automake libtool make nodejs git
 # Copy OpenPLC
 COPY OpenPLC_v2 /home/OpenPLC_v2
-
-# Set up OpenPLC
 WORKDIR /home/OpenPLC_v2/
-RUN chmod +x ./build.sh
-RUN printf "n\n1\n" | ./build.sh
+RUN sudo chmod +x ./build.sh
+# RUN ./build.sh
 
-# Expose OpenPLC ports
+
 EXPOSE 502
 EXPOSE 8080
 
 # CMD sudo nodejs /OpenPLC_v2/server.js
-CMD sudo nodejs server.js
+CMD ./build.sh && sudo nodejs server.js
