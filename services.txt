@@ -24,14 +24,14 @@ openplc_hmi
 tcp_modbus
 scadalts
 database
+bacnet_server
+opc_ua_server
+rfid_database
 inventory_db
 inventory_client
 ftp_server
 automation_db
 automation_server
-opc_ua_server
-rfid_database
-bacnet_server
 vds
 ./logging/docker-compose.yml
 kibana
