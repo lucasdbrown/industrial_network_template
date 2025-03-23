@@ -22,7 +22,6 @@ docker-firewall
 ./industrial/docker-compose.yml
 openplc_hmi
 tcp_modbus
-openplc
 scadalts
 database
 inventory_db

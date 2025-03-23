@@ -34,23 +34,23 @@ services:
         ipv4_address: 192.168.31.5
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
-  openplc:
-    build:
-      context: .
-      dockerfile: industrial_component/openplc_test/Dockerfile
-    stdin_open: true 
-    tty: true
-    container_name: openplc
-    volumes:
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
-      - openplc_data:/home
-    ports:
-      - "8080:8080"
-      - "503:502"
-    networks:
-      assembly_network:
-        ipv4_address: 192.168.31.3
+  # openplc:
+  #   build:
+  #     context: .
+  #     dockerfile: industrial_component/openplc/Dockerfile
+  #   stdin_open: true 
+  #   tty: true
+  #   container_name: openplc
+  #   volumes:
+  #     - "/etc/timezone:/etc/timezone:ro"
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #     - openplc_data:/home
+  #   ports:
+  #     - "8080:8080"
+  #     - "5020:502"
+  #   networks:
+  #     assembly_network:
+  #       ipv4_address: 192.168.31.50
 
   # zeek:
   #   image: zeek/zeek:latest
