@@ -17,7 +17,7 @@ On Mac or linux use your package manager to install the commands ie:
 - `brew install <command>` mac
 - `sudo dnf install <command` Fedora/RHEL/Rocky Linux
 
-On windows I don't know how you would do this. The commands need to be installed so the bash script can use them. Which is different from simply being able to use them in powershell
+On windows I don't know how you would do this. The commands need to be installed so the bash script can use them. Which is different from simply being able to use them in powershell.
 
 
 # testing.sh
