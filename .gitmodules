@@ -1,0 +1,3 @@
+[submodule "industrial/OpenPLC_v2"]
+	path = industrial/OpenPLC_v2
+	url = https://github.com/thiagoralves/OpenPLC_v2
