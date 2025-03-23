@@ -26,8 +26,8 @@ cd ..
 cp ./glue_generator_src/glue_generator ./core/glue_generator
 
 clear
-echo OpenPLC can talk Modbus/TCP and DNP3 SCADA protocols. Modbus/TCP is already edited
-# echo added to the system. Do you want to add support for DNP3 as well \(Y/N\)?
+echo OpenPLC can talk Modbus/TCP and DNP3 SCADA protocols. Modbus/TCP is already
+echo added to the system. Do you want to add support for DNP3 as well \(Y/N\)?
 # read DNP3_SUPPORT
 # if [ "$DNP3_SUPPORT" = "Y" -o "$DNP3_SUPPORT" = "y" -o "$DNP3_SUPPORT" = "yes" ]; then
 # 	echo Installing DNP3 on the system...
