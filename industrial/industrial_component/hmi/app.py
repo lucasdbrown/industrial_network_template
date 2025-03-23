@@ -1,5 +1,5 @@
 from flask import Flask, render_template, current_app
-from pymodbus.client import ModbusTcpClient
+from pymodbus.client.sync import ModbusTcpClient
 from datetime import datetime
 from flask import jsonify
 import secrets
@@ -19,7 +19,7 @@ def current_time():
 
 @app.route('/api',methods=['POST','GET'])
 def api():
-    host = '192.168.31.3'
+    host = '192.168.0.26'
     port = 502
     client = ModbusTcpClient(host, port)
     client.connect()

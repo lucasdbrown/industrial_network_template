@@ -4,7 +4,7 @@ itsdangerous==2.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
 Werkzeug==3.1
-pymodbus==3.0.2
+pymodbus==2.5.3
 pyserial==3.5
 six==1.16.0
 gunicorn==20.0.4
