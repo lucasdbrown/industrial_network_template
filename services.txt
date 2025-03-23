@@ -28,9 +28,17 @@ inventory_db
 inventory_client
 ftp_server
 automation_db
+<<<<<<< HEAD
 opc_ua_server
 rfid_database
 bacnet_server
+=======
+automation_server
+opc_ua_server
+rfid_database
+bacnet_server
+vds
+>>>>>>> parent of 48949f8 (fix(git-issue): added scripts markdown)
 ./logging/docker-compose.yml
 kibana
 elasticsearch
