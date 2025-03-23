@@ -3,10 +3,10 @@ services:
     image: docker.elastic.co/kibana/kibana:8.0.0
     container_name: kibana
     environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://192.168.20.7:9200
     networks:
-      enterprise_network:
-        ipv4_address: 192.168.10.6
+      idmz_network:
+        ipv4_address: 192.168.20.16
     ports:
       - 5601:5601
 
@@ -15,10 +15,14 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+      - "xpack.security.enabled=false"
+      - "xpack.security.enrollment.enabled=false"
+      # - 'ES_JAVA_OPTS="-Xms512m -Xmx512m"'
     networks:
       idmz_network:
         ipv4_address: 192.168.20.7
-
     ports:
       - 9200:9200
     volumes:
@@ -62,6 +66,7 @@ services:
       - ./logs:/logs:ro                                     # Mount logs directory explicitly
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./tomcat_log:/var/log/scada:ro
     command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false"]
     networks:
       assembly_network:

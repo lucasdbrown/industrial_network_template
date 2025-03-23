@@ -38,10 +38,15 @@ opc_ua_server
 rfid_database
 bacnet_server
 vds
+<<<<<<< HEAD
 >>>>>>> parent of 48949f8 (fix(git-issue): added scripts markdown)
+=======
+>>>>>>> parent of 4cff90c (fixing git on computer)
 ./logging/docker-compose.yml
 kibana
 elasticsearch
 logstash_idmz
 logstash_site_operations
 filebeat
+telegraf_forwarder
+grafana

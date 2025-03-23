@@ -8,12 +8,17 @@ WORKDIR /root/
 
 # Update package list & install dependencies
 <<<<<<< HEAD
+<<<<<<< HEAD
 RUN apt-get update
 RUN apt-get install -y build-essential \
 =======
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
 >>>>>>> parent of 3548ff4 (fix(git-issue): openplc website running again)
+=======
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+>>>>>>> parent of 4cff90c (fixing git on computer)
     libpcap-dev \
     libevent-dev \
     libpcre3-dev \
@@ -39,9 +44,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 RUN sudo apt-get install -y build-essential pkg-config bison flex autoconf automake libtool make nodejs git
 =======
 >>>>>>> parent of 3548ff4 (fix(git-issue): openplc website running again)
+=======
+>>>>>>> parent of 4cff90c (fixing git on computer)
 # Copy OpenPLC
 COPY OpenPLC_v2 /home/OpenPLC_v2
 

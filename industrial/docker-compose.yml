@@ -12,8 +12,8 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "5000:5000"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.2
@@ -31,7 +31,11 @@ services:
       - "502:502"
     networks:
       assembly_network:
+<<<<<<< HEAD
         ipv4_address: 192.168.31.5
+=======
+        ipv4_address: 192.168.31.3
+>>>>>>> parent of 4cff90c (fixing git on computer)
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   # openplc:
@@ -71,38 +75,60 @@ services:
   scadalts:
     image: scadalts/scadalts:latest
     environment:
-      - CATALINA_OPTS=-Xmx512m -Xms512m
-    ports:
-      - "8000:8080"
-    depends_on:
+      - CATALINA_OPTS=-Xmx2G -Xms2G
+      - JAVA_OPTS=-Dlogback.configurationFile=/usr/local/tomcat/lib/logback.xml
+    ports: 
+      - "0.0.0.0:8000:8080"
+    depends_on: 
       - database
-    expose: ["8080"]
+    expose: ["8080", "8000"]
+    volumes:
+      - ./tomcat_log:/usr/local/tomcat/logs:rw
+      - ./industrial/scada/logback.xml:/usr/local/tomcat/lib/logback.xml:ro
+      - scada_databases:/var/lib/mysql
+      - ./industrial/scada/base_scada.json:/usr/local/tomcat/conf/base_scada.json:ro
+    links:
+      - database:database
+    command:
+      - /usr/bin/wait-for-it
+      - --host=database
+      - --port=3306
+      - --timeout=30
+      - --strict
+      - --
+      - /usr/local/tomcat/bin/catalina.sh
+      - run
     networks:
       utilities_network:
         ipv4_address: 192.168.32.2
-
+    
   database:
     container_name: mysql_database
-    image: mysql/mysql-server:8.0
+    image: mysql/mysql-server:8.0.32
     ports:
-      - "3307:3306"
-    environment:
+      - "0.0.0.0:3307:3306"
+    environment: 
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=scadalts
+    expose: ["3307"]
     volumes:
-      - scada_databases:/var/lib/mysql
+      - ./db_data:/var/lib/mysql:rw
+      - ./db_conf:/etc/mysql:ro
+    command: --log_bin_trust_function_creators=1
     networks:
       utilities_network:
         ipv4_address: 192.168.32.3
     
-  # bacnet_server:
-  #   image: iotechsys/bacnet-server:latest
-  #   container_name: bacnet_server
-  #   networks:
-  #     utilities_network:
-  #       ipv4_address: 192.168.32.4
+  bacnet_server:
+    image: iconics/bacnet:10.97rlp4
+    container_name: bacnet_server
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.4
+    ports:
+      - "47808:47808"
 
   # rsyslog_server:
   #   image: rsyslog/syslog_appliance_alpine:latest
@@ -113,7 +139,26 @@ services:
   #   volumes:
   #     - ./logging/logs:/var/log
 
+  opc_ua_server:
+    image: open62541/open62541:latest
+    container_name: opc_ua_server
+    ports:
+      - "4840:4840"  # OPC UA default port
+    environment:
+      - OPCUA_SERVER_NAME=Utilities_Server
+      - OPCUA_NAMESPACE_URI=http://example.com/opcua
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.6
+
   # Packaging Enclave Services
+  rfid_database:
+    image: rfidapp/rfid-app-database
+    container_name: rfid_database
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.3
+
   inventory_db:
     image: mysql/mysql-server:8.0
     container_name: inventory_db
@@ -143,6 +188,7 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.2
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
   automation_db:
@@ -156,41 +202,31 @@ services:
       site_operations_network:
         ipv4_address: 192.168.39.3
  
-  # telegraf_forwarder:
-  #   image: telegraf:latest
-  #   container_name: telegraf_forwarder
-  #   volumes:
-  #     - ./site_operations/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-  #   networks:
-  #     site_operations_network:
-  #       ipv4_address: 192.168.39.7
-  #   #entrypoint: ["/bin/sh", "-c", "sleep infinity"]
-
-  opc_ua_server:
-    image: open62541/open62541:latest
-    container_name: opc_ua_server
+  automation_server:
+    build:
+      context: ./site_operations
+      dockerfile: DockerFile
+    container_name: automation_server
+    networks:
+      site_operations_network:
+        ipv4_address: 192.168.39.4
+    depends_on:
+      - automation_db
     ports:
-      - "4840:4840"  # OPC UA default port
-    environment:
-      - OPCUA_SERVER_NAME=Utilities_Server
-      - OPCUA_NAMESPACE_URI=http://example.com/opcua
-    networks:
-      utilities_network:
-        ipv4_address: 192.168.32.6
+      - "8001:5000"
 
-  rfid_database:
-    image: rfidapp/rfid-app-database
-    container_name: rfid_database
+  vds:
+    image: dorowu/ubuntu-desktop-lxde-vnc  # Prebuilt lightweight Ubuntu Desktop that has 4 virtual desktops
+    container_name: vds
+    restart: unless-stopped
+    ports:
+      - "5901:5901"  # VNC Access
+      - "8082:80"    # Web-based noVNC Access
+    environment:
+      - VNC_PASSWORD=securepassword
     networks:
-      packaging_network:
-        ipv4_address: 192.168.33.3
-  
-  bacnet_server:
-    image: iconics/bacnet:10.97rlp4
-    container_name: bacnet_server
-    networks:
-      utilities_network:
-        ipv4_address: 192.168.32.4
+      site_operations_network:
+        ipv4_address: 192.168.39.5
 
 networks:
   industrial_network:

@@ -1,6 +1,34 @@
 filebeat.inputs:
-- type: container
-  paths:
-    - '/var/lib/docker/containers/*/*.log'
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/scada-lts/*.log
+      - /var/log/scada-lts/*.txt
+    multiline.pattern: '^\d{4}-\d{2}-\d{2}'   # e.g., Java log timestamps
+    multiline.negate: true
+    multiline.match: after
+    exclude_files: ['\.gz$']
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+# Optional: enrich logs with metadata
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+# Output to Logstash (change host/IP if needed)
 output.logstash:
-  hosts: ["logstash:5000"]
+  hosts: ["logstash_idmz:5044"]
+  ssl.enabled: false
+  loadbalance: true
+
+# Optional: monitoring setup
+setup.template.settings:
+  index.number_of_shards: 1
+
+# Optional: Kibana dashboard setup (comment out if you're not using this method)
+# setup.kibana:
+#   host: "kibana:5601"
