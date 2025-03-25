@@ -48,7 +48,7 @@ services:
       - elasticsearch
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.6
+        ipv4_address: 192.168.39.7
     ports:
       - 5002:5000
     volumes:
