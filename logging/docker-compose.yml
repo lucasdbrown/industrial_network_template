@@ -48,7 +48,7 @@ services:
       - elasticsearch
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.7
+        ipv4_address: 192.168.39.6
     ports:
       - 5002:5000
     volumes:
@@ -106,7 +106,7 @@ services:
       enterprise_network:
         ipv4_address: 192.168.10.15
     volumes:
-      - /home/ubuntu/docker/logging/grafana:/var/lib/grafana
+      - /home/ubuntu/docker/logging/grafana:/var/lib/grafana # This doesn't exist on the host need to fix
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
