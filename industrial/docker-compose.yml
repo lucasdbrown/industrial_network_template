@@ -187,27 +187,40 @@ services:
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
-  automation_db:
+  historian-db:
     image: influxdb:latest
-    container_name: automation_db
+    container_name: historian-db
     environment:
       - INFLUXDB_DB=historian
       - INFLUXDB_USER=admin
       - INFLUXDB_PASSWORD=securepass
+    volumes:
+        - historian_data:/var/lib/influxdb
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.3
  
-  automation_server:
+  historian-client:
+      image: ubuntu:latest
+      stdin_open: true
+      tty: true
+      container_name: historian-client
+      depends_on:
+        - historian-db
+      networks:
+        site_operations_network:
+          ipv4_address: 192.168.39.4
+  
+  historian-server:
     build:
       context: ./site_operations
       dockerfile: DockerFile
-    container_name: automation_server
+    container_name: historian-server
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.4
+        ipv4_address: 192.168.39.5
     depends_on:
-      - automation_db
+      - historian-db
     ports:
       - "8001:5000"
 
@@ -222,7 +235,7 @@ services:
       - VNC_PASSWORD=securepassword
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.5
+        ipv4_address: 192.168.39.6
 
 networks:
   industrial_network:
@@ -240,3 +253,4 @@ volumes:
   openplc_data:
   scada_databases:
   logs:
+  historian_data:

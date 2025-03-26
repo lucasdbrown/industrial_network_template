@@ -1,28 +1,4 @@
 services:
-  historian-db:
-    image: influxdb:latest
-    container_name: historian-db
-    environment:
-      - INFLUXDB_DB=historian
-      - INFLUXDB_USER=admin
-      - INFLUXDB_PASSWORD=securepass
-    volumes:
-      - historian_data:/var/lib/influxdb
-    networks:
-      enterprise_network:
-        ipv4_address: 192.168.10.2
-
-  historian-client:
-    image: ubuntu:latest
-    stdin_open: true
-    tty: true
-    container_name: historian-client
-    depends_on:
-      - historian-db
-    networks:
-      enterprise_network:
-        ipv4_address: 192.168.10.3
-
   web-app:
     image: nginx:latest
     container_name: web-app
@@ -32,8 +8,23 @@ services:
       - "8081:80"
     networks:
       enterprise_network:
-        ipv4_address: 192.168.10.4
+        ipv4_address: 192.168.10.2
 
+  web-app-db:
+     image: mysql:8.0
+     restart: unless-stopped
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: web-app-db
+       MYSQL_USER: webuser
+       MYSQL_PASSWORD: db
+     volumes:
+       - webapp_db_data:/var/lib/mysql
+     networks:
+       enterprise_network:
+         ipv4_address: 192.168.10.3
+     ports:
+       - "3308:3306"
   client_1:
     image: alpine:latest
     stdin_open: true
@@ -41,11 +32,11 @@ services:
     container_name: client_1
     networks:
       enterprise_network:
-        ipv4_address: 192.168.10.5
+        ipv4_address: 192.168.10.4
         
 networks:
   enterprise_network:
     external: true
 
 volumes:
-  historian_data:
+  webapp_db_data:

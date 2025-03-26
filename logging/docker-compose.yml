@@ -22,7 +22,7 @@ services:
       # - 'ES_JAVA_OPTS="-Xms512m -Xmx512m"'
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.7
+        ipv4_address: 192.168.20.6
     ports:
       - 9200:9200
     volumes:
@@ -48,7 +48,7 @@ services:
       - elasticsearch
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.6
+        ipv4_address: 192.168.39.7
     ports:
       - 5002:5000
     volumes:
