@@ -40,7 +40,7 @@ This script automates the management of Docker services and Compose files. It co
 - **[Rebuild](#rebuilding)**: Rebuild specific services or Compose files interactively.
 - **[Run Commands](#running-commands)**: Execute any command within the script.
 - **[Automatic Rebuild Input](#automatic-rebuild-input)**: Remembers previously rebuilt services for convenience.
-- **[Ending Servikes](#ending-services)**: Stop or fully remove running services.
+- **[Ending Services](#ending-services)**: Stop or fully remove running services.
 
 ## Terminology
 - **Service**: A single container managed by Docker.
@@ -57,7 +57,7 @@ The script accepts command-line arguments for specifying which services or Compo
 
 > [!NOTE] If no command-line arguments are given, the script will start all services.
 
-By default, the **network** Compose is always started.
+**network** Compose is always started specified or not.
 
 ---
 <a id="rebuilding"></a>
