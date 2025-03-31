@@ -39,7 +39,7 @@ This script automates the management of Docker services and Compose files. It co
 - **[Startup](#startup)**: Start specific services or Compose files.
 - **[Rebuild](#rebuilding)**: Rebuild specific services or Compose files interactively.
 - **[Run Commands](#running-commands)**: Execute any command within the script.
-- **[Automatic Rejuild Input](#automatic-rebuild-input)**: Remembers previously rebuilt services for convenience.
+- **[Automatic Rebuild Input](#automatic-rebuild-input)**: Remembers previously rebuilt services for convenience.
 - **[Ending Servikes](#ending-services)**: Stop or fully remove running services.
 
 ## Terminology
@@ -62,7 +62,7 @@ By default, the **network** Compose is always started.
 ---
 <a id="rebuilding"></a>
 ## Rebuilding Services
-To rebuild a service or a Compose file, enter its name when prompted in **Part 2** of the script.
+To rebuild a service or a Compose file, enter its name when prompted in **Part 2** of the script. You can also specify a non running service or compose.
 
 > [!NOTE] If making changes to the network, include `network` in your rebuild input. This ensures all dependent services are properly restarted.
 
@@ -77,8 +77,8 @@ If you press **Enter** without specifying a service, the script will use the las
 To execute a shell command inside the script, prefix it with `!`.
 
 ```bash
-!docker ps
-!ls -l /some/directory
+Services to rebuild: !docker ps # Or
+Services to rebuild: !ls -l /some/directory
 ```
 
 To exit the rebuild loop and proceed to shutdown options, enter `end`.
@@ -100,20 +100,22 @@ Enter 'stop' or 'down' to shut down services:
 
 ---
 ## Notes & Warnings
-- **Ensure your `services.txt` file is correctly formatted**, as the script reads service and Compose mappings from it.
-- **Invalid service or Compose names**: The script will notify you if an invalid name is entered.
-- **Handling networks**: The script automatically prunes and rebuilds networks when needed.
+- **Ensure your `services.txt` file is correctly formatted**, as the script reads service and Compose mappings from it. Simply run `./get_services.sh` to make sure it is up to date and formatted correctly
+- **Invalid service or Compose names**: The script will notify you if an invalid name is entered. If your services.txt file is wrong you won't be able to run any not inside of it
+- **Handling networks**: The script automatically prunes and rebuilds networks when you type network in stage 2.
+- **Stopping Errors**: Sometimes stopping the docker containers fails with a 404 error. If this happens manually turn the containers.
+- **Rebuild Using Cache**: Sometimes the container will not use your new change it this happens I would recommend ending script and running it again after a `docker system prune -af`. Working on a solution.
 
 ---
 ### Example Usage
 ```bash
-./testing.sh web database
+./testing.sh client_1 idmz
 ```
-This starts the `web` and `database` services along with the default `network` Compose.
+This starts the `idmz` compose and `god_debug` service along with the default `network` compose.
 
 Inside the script, to rebuild a service:
 ```bash
-Enter service(s) to rebuild: web
+Enter service(s) to rebuild: client_1
 ```
 To run a command:
 ```bash
