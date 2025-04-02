@@ -1,7 +1,6 @@
 ./enterprise/docker-compose.yml
-historian-db
-historian-client
 web-app
+web-app-db
 client_1
 ./network/docker-compose.yml
 god_debug
@@ -13,7 +12,6 @@ utilities_switch
 packaging_switch
 ./idmz/docker-compose.yml
 reverse-proxy
-historian-server
 remote-desktop-gateway
 guacd
 postgres
@@ -23,6 +21,8 @@ docker-firewall
 openplc_hmi
 tcp_modbus
 openplc
+mqtt_broker
+node_red
 scadalts
 database
 bacnet_server
@@ -31,8 +31,9 @@ rfid_database
 inventory_db
 inventory_client
 ftp_server
-automation_db
-automation_server
+historian-db
+historian-client
+historian-server
 vds
 ./logging/docker-compose.yml
 kibana
