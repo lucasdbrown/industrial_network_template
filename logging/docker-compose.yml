@@ -110,7 +110,7 @@ services:
       enterprise_network:
         ipv4_address: 192.168.10.15
     volumes:
-      - /home/ubuntu/docker/logging/grafana:/var/lib/grafana # This doesn't exist on the host need to fix
+      - /logging/grafana:/var/lib/grafana # This doesn't exist on the host need to fix
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
