@@ -25,7 +25,6 @@ mqtt_broker
 node_red
 scadalts
 database
-bacnet_server
 opc_ua_server
 rfid_database
 inventory_db
