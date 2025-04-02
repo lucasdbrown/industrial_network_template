@@ -3,7 +3,11 @@ services:
     image: docker.elastic.co/kibana/kibana:8.0.0
     container_name: kibana
     environment:
-      ELASTICSEARCH_HOSTS: http://192.168.20.7:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      XPACK_SECURITY_ENCRYPTIONKEY: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      XPACK_REPORTING_ENCRYPTIONKEY: "cccccccccccccccccccccccccccccccc"
+      XPACK_REPORTING_KIBANASERVER_HOSTNAME: "localhost"
     networks:
       idmz_network:
         ipv4_address: 192.168.20.16
