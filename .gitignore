@@ -5,3 +5,10 @@ logging/logs/iptables/
 industrial/db_data
 industrial/db_conf
 industrial/tomcat_log
+
+# industrial/node-red/
+# industrial/node-red/data/.config.nodes.json
+# industrial/node-red/data/.config.runtime.json
+# industrial/node-red/data/.config.runtime.json.backup
+# industrial/node-red/data/.config.users.json
+# industrial/node-red/data/.config.users.json.backup

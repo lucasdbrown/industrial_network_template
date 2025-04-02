@@ -31,7 +31,7 @@ services:
       - "502:502"
     networks:
       assembly_network:
-        ipv4_address: 192.168.31.5
+        ipv4_address: 192.168.31.3
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   openplc:
@@ -50,7 +50,34 @@ services:
       - "503:502"
     networks:
       assembly_network:
-        ipv4_address: 192.168.31.3
+        ipv4_address: 192.168.31.4
+
+  mqtt_broker:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker
+    networks:
+      assembly_network:
+        ipv4_address: 192.168.31.5
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config:/mosquitto/config # loads the mosquitto config file
+      # - ./mqtt/data:/mosquitto/data # If you enable persistence true in mosquitto.conf, this is where message queues and subscriptions are stored across restarts.
+      - ./mqtt/log:/mosquitto/log # can be used for logging MQTT connect/disconnect messages
+    
+  node_red:
+    image: nodered/node-red
+    container_name: node_red
+    networks:
+      assembly_network:
+        ipv4_address: 192.168.31.6
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red/data:/data # Saves Node-RED flows, custom nodes, credentials and project settings to the project
+    depends_on:
+      - mqtt_broker
 
   # zeek:
   #   image: zeek/zeek:latest

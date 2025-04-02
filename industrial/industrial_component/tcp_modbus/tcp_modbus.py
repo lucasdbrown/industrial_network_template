@@ -3,7 +3,7 @@ from pymodbus.exceptions import ModbusException, ConnectionException
 import random
 import time
 
-HOST = "192.168.31.5"  # Update if using a different IP
+HOST = "192.168.31.15"  # Update if using a different IP
 PORT = 502  # Change to 1502 if remapped
 
 client = ModbusTcpClient(host=HOST, port=PORT)
