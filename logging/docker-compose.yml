@@ -83,7 +83,7 @@ services:
   telegraf_forwarder:
     image: telegraf:latest
     container_name: telegraf_forwarder
-    restart: unless-stopped
+    # restart: unless-stopped
     # user: telegraf:999 #you need to find the GID of Docker if not added to Sudo group, found user ID by getent passwd
     volumes:
       - './telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
