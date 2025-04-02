@@ -12,3 +12,5 @@ industrial/tomcat_log
 # industrial/node-red/data/.config.runtime.json.backup
 # industrial/node-red/data/.config.users.json
 # industrial/node-red/data/.config.users.json.backup
+
+logging/grafana/*.db
