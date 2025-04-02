@@ -71,7 +71,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./tomcat_log:/var/log/scada:ro
-    command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false"]
+    command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch"]
     networks:
       assembly_network:
         ipv4_address: 192.168.31.7
@@ -110,7 +110,7 @@ services:
       enterprise_network:
         ipv4_address: 192.168.10.15
     volumes:
-      - /logging/grafana:/var/lib/grafana # This doesn't exist on the host need to fix
+      - ./grafana:/var/lib/grafana # This doesn't exist on the host need to fix
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
