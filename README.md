@@ -1,7 +1,7 @@
 # Industrial Virtualized Network Template
 Simulated Industrial Network Template for OT Security Competitions or Projects
 
-## Setting up your own OT Network
+## Setting up your own Industrial Network
 - git clone the repo and then remove the `.git` directory with `rm -rf .git`
 - Then do the process of starting the new repo:
 -  `git init`
@@ -13,6 +13,7 @@ Simulated Industrial Network Template for OT Security Competitions or Projects
 chmod +x testing.sh
 ./testing.sh
 ```
+Look through `/docs/scripts.md` for documentation on the scripts in this repo
 
 ## For documentation 
 - Go to the `docs` folder 
@@ -21,9 +22,20 @@ chmod +x testing.sh
 ![Image](Ind_Network_Template_Diagram.drawio.png)
 
 
-## Guide for how to make your own OT Network using this template
-- Make your own simulated python components and add their configurations to the `docker-compose.yml` in the folder where your simulated components are
+## Guide for how to make your own Industrial Network using this template
+- Add components/services and add their configurations to the `docker-compose.yml` in the folder where your components/services are
+- Use the scenario template below
 
+#### Scenario Template for Planning what to add to the Industrial Network Template
+- Foothold: 
+  - Is there a Vendor Foothold?
+    - Do you need to create a Vendor Network and gain access to the Industrial Network through a Vendor RDP access?
+- Added Services to Enterprise:
+- Added Services to IDMZ:
+- Added Services to Industrial:
+- Enclaves:
+- Industrial Processes:
+- Most Critical Parts of the Industrial Process to Exploitation/Manipulation:
 
 
 ## Credit
