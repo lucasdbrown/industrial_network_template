@@ -2,9 +2,52 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
+      # SCADA-LTS Logs
       - /var/log/scada-lts/*.log
       - /var/log/scada-lts/*.txt
-    multiline.pattern: '^\d{4}-\d{2}-\d{2}'   # e.g., Java log timestamps
+      - /usr/local/tomcat/logs/*.log
+      - /usr/local/tomcat/logs/*.txt
+
+      # NGINX web-app logs (Enterprise)
+      - /var/log/nginx/*.log
+      - /logs/web-app/*.log
+
+      # Industrial component logs
+      - /logs/openplc/*.log
+      - /logs/modbus/*.log
+      - /logs/hmi/*.log
+      - /logs/mqtt/*.log
+      - /logs/node-red/*.log
+
+      # Database logs (MySQL, Postgres)
+      - /var/log/mysql/*.log
+      - /logs/database/*.log
+      - /var/log/postgresql/*.log
+
+      # Historian logs (InfluxDB)
+      - /var/log/influxdb/*.log
+      - /logs/historian/*.log
+
+      # File Server and FTP
+      - /logs/ftp_server/*.log
+
+      # OPC-UA and BACnet logs
+      - /logs/opcua/*.log
+      - /logs/bacnet/*.log
+
+      # Virtual Desktop and Remote Desktop
+      - /logs/vds/*.log
+      - /logs/guacd/*.log
+      - /logs/rdg/*.log
+
+      # Firewall logs
+      - /logs/firewall/*.log
+      - /logs/iptables.log
+
+      # IDMZ and Reverse Proxy
+      - /logs/reverse-proxy/*.log
+      - /logs/idmz/*.log
+    multiline.pattern: '^\d{4}-\d{2}-\d{2}'   # Java log timestamps
     multiline.negate: true
     multiline.match: after
     exclude_files: ['\.gz$']
@@ -13,7 +56,7 @@ filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
 
-# Optional: enrich logs with metadata
+# Enriching logs with container and host metadata
 processors:
   - add_host_metadata: ~
   - add_cloud_metadata: ~
@@ -21,7 +64,7 @@ processors:
 
 # Output to Logstash (change host/IP if needed)
 output.logstash:
-  hosts: ["logstash_idmz:5044"]
+  hosts: ["logstash_idmz:5000"]
   ssl.enabled: false
   loadbalance: true
 
@@ -29,6 +72,3 @@ output.logstash:
 setup.template.settings:
   index.number_of_shards: 1
 
-# Optional: Kibana dashboard setup (comment out if you're not using this method)
-# setup.kibana:
-#   host: "kibana:5601"

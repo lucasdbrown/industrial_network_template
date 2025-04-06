@@ -16,9 +16,6 @@ services:
           ipv4_address: 192.168.33.69
         site_operations_network:
           ipv4_address: 192.168.39.69
-    volumes:
-    - ./logging/testing:/testing:ro
-    - ./tomcat_log:/tomcat_log:rw
     entrypoint: ["/bin/sh", "-c", "sleep infinity"]
     
   # Enterprise Router (Routes Enterprise <-> IDMZ)
