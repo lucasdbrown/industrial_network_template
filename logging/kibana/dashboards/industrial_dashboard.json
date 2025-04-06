@@ -1,0 +1,17 @@
+{
+    "attributes": {
+      "title": "Industrial Logs Dashboard",
+      "hits": 0,
+      "description": "Logs from SCADA, PLC, MQTT, Bacnet, etc.",
+      "panelsJSON": "[{\"type\":\"search\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"1\"},\"panelIndex\":\"1\",\"embeddableConfig\":{},\"title\":\"Log Stream\",\"version\":\"7.9.3\",\"gridData\":{\"w\":24,\"h\":15,\"x\":0,\"y\":0,\"i\":\"1\"}}]",
+      "optionsJSON": "{\"useMargins\":true,\"hidePanelTitles\":false}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[],\"index\":\"logs-industrial-*\"}"
+      }
+    },
+    "id": "industrial-logs-dashboard",
+    "type": "dashboard"
+  }
+  
