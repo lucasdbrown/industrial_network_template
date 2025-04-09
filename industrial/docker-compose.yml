@@ -202,6 +202,18 @@ services:
       packaging_network:
         ipv4_address: 192.168.33.5
 
+  barcode_scanner:
+    container_name: barcode_scanner
+    build:
+      context: ./barcode_scanner
+      dockerfile: DockerFile
+    ports:
+      - "5001:5001"
+    restart: always
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.6
+
   # Level 3 Site Operations Services
   ftp_server:
     image: delfer/alpine-ftp-server:latest

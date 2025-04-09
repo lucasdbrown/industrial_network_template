@@ -78,7 +78,7 @@ services:
       utilities_network:
         ipv4_address: 192.168.32.5
       packaging_network:
-        ipv4_address: 192.168.33.6
+        ipv4_address: 192.168.33.7
   
   telegraf_forwarder:
     image: telegraf:latest
