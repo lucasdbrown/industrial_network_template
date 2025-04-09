@@ -14,5 +14,4 @@ industrial/tomcat_log
 # industrial/node-red/data/.config.users.json.backup
 
 logging/grafana/*.db
-logging/grafana/plugins/grafana-lokiexplore-app/
-logging/grafana/plugins/grafana-pyroscope-app
+logging/grafana/plugins
