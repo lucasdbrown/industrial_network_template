@@ -144,14 +144,17 @@ services:
       utilities_network:
         ipv4_address: 192.168.32.3
 
-  # bacnet_server:
-  #   image: iconics/bacnet:10.97rlp4
-  #   container_name: bacnet_server
-  #   networks:
-  #     utilities_network:
-  #       ipv4_address: 192.168.32.4
-  #   ports:
-  #     - "47808:47808"
+  bacnet_server:
+    build:
+      context: ./bacnet_server
+      dockerfile: DockerFile
+    container_name: bacnet_server
+    networks:
+      utilities_network:
+        ipv4_address: 192.168.32.4
+    ports:
+      - "47808:47808/udp" # BACnet
+      - "8025:8025" # Flask
 
   # rsyslog_server:
   #   image: rsyslog/syslog_appliance_alpine:latest
