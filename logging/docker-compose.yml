@@ -41,7 +41,7 @@ services:
       idmz_network:
         ipv4_address: 192.168.20.8
     ports:
-      - 5001:5000
+      - 5003:5000
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 

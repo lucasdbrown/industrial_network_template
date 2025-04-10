@@ -8,6 +8,22 @@ List of the Routers (functions as router):
 - utilities_switch 
 - packaging_switch 
 
-Each router has a `.conf` file, build in the `network/docker-compose.yml`, and ARG (in the DockerFile and docker-compose) for the router config so it can be copied to the container's `/etc/frr` directory so the container has the configuration for the router.
+## Testing functionality of Routers and Switches
 
-To check if the static routes are there, go into the container and run `ip route`
+Have to run `vtysh` first for the other commands to work. It should give you a message like this after running `vtysh`:
+```yaml
+% Can't open configuration file /etc/frr/vtysh.conf due to 'No such file or directory'.
+
+Hello, this is FRRouting (version 8.4_git).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+```
+
+```bash
+vtysh 
+
+show ip route
+
+show ip ospf neighbor
+
+show ip ospf interface
+```
