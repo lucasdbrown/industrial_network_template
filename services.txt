@@ -29,6 +29,7 @@ opc_ua_server
 rfid_database
 inventory_db
 inventory_client
+barcode_scanner
 ftp_server
 historian-db
 historian-client

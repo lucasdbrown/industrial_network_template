@@ -66,12 +66,12 @@ services:
       - logstash_idmz
       - logstash_site_operations
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw  # Mount configuration file
-      - ./logs:/logs:ro                                     # Mount logs directory explicitly
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw # Mount configuration file
+      - ./logs:/logs:ro # Mount logs directory explicitly
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./tomcat_log:/var/log/scada:ro
-    command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch"]
+    command: [ "sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch" ]
     networks:
       assembly_network:
         ipv4_address: 192.168.31.7
@@ -79,59 +79,43 @@ services:
         ipv4_address: 192.168.32.5
       packaging_network:
         ipv4_address: 192.168.33.7
-  
+
   telegraf_forwarder:
     image: telegraf:latest
     container_name: telegraf_forwarder
-    # restart: unless-stopped
-    # user: telegraf:999 #you need to find the GID of Docker if not added to Sudo group, found user ID by getent passwd
     volumes:
-      - './telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
-      # - '/:/hostfs:ro' # to monitor docker-vm
-      # - '/var/run/docker.sock:/var/run/docker.sock' # to monitor docker containers
-      # - '/home/ubuntu/docker/grafana-monitoring/telegraf/mibs:/usr/share/snmp/mibs' # mibs files [e.g., sophos]
-    environment:
-        - HOST_ETC=/hostfs/etc
-        - HOST_PROC=/hostfs/proc
-        - HOST_SYS=/hostfs/sys
-        - HOST_VAR=/hostfs/var
-        - HOST_RUN=/hostfs/run
-        - HOST_MOUNT_PREFIX=/hostfs
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:rw
+    env_file:
+      - ../industrial/historian.env
     networks:
-      utilities_network:
-        ipv4_address: 192.168.32.7
-    # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+      site_operations_network:
+        # ipv4_address: 192.168.32.7
 
   grafana:
     container_name: grafana
-    image: grafana/grafana-oss:main-ubuntu
+    image: grafana/grafana-oss:latest
     user: "0"
     networks:
-      enterprise_network:
-        ipv4_address: 192.168.10.15
-    volumes:
-      - ./grafana:/var/lib/grafana # This doesn't exist on the host need to fix
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.entrypoints=http"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.jimsgarage.co.uk`)"
-      - "traefik.http.routers.grafana.middlewares=default-whitelist@file"
-      - "traefik.http.middlewares.grafana-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.grafana.middlewares=grafana-https-redirect"
-      - "traefik.http.routers.grafana-secure.entrypoints=https"
-      - "traefik.http.routers.grafana-secure.rule=Host(`grafana.jimsgarage.co.uk`)"
-      - "traefik.http.routers.grafana-secure.tls=true"
-      - "traefik.http.routers.grafana-secure.service=grafana"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.docker.network=enterprise_network"
-    
+      site_operations_network: # ipv4_address: 192.168.10.15
+    ports:
+      - 3000:3000
+    # volumes:
+    #   - ./grafana:/var/lib/grafana
+    #   - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    #   - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    #   - ./grafana/dashboards:/var/lib/grafana/dashboards
+    #   - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    # grafana:
+    #   volumes:
+    #     - grafana-storage:/var/lib/grafana:rw
+
+
+
+
+
 
 networks:
+  tempTIGtest:
   enterprise_network:
     external: true
   idmz_network:
