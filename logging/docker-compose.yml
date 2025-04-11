@@ -2,6 +2,8 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.0.0
     container_name: kibana
+    cap_add:
+      - NET_ADMIN
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
       XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -17,6 +19,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
     container_name: elasticsearch
+    cap_add:
+      - NET_ADMIN
     environment:
       - discovery.type=single-node
       - "http.host=0.0.0.0"
@@ -35,6 +39,8 @@ services:
   logstash_idmz:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_idmz
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - elasticsearch
     networks:
@@ -48,6 +54,8 @@ services:
   logstash_site_operations:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_site_operations
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - elasticsearch
     networks:
@@ -61,17 +69,19 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.0.0
     container_name: filebeat
+    cap_add:
+      - NET_ADMIN
     user: root
     depends_on:
       - logstash_idmz
       - logstash_site_operations
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw  # Mount configuration file
-      - ./logs:/logs:ro                                     # Mount logs directory explicitly
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw # Mount configuration file
+      - ./logs:/logs:ro # Mount logs directory explicitly
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ./tomcat_log:/var/log/scada:ro
-    command: ["sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch"]
+    command: [ "sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch" ]
     networks:
       assembly_network:
         ipv4_address: 192.168.31.7
@@ -79,10 +89,12 @@ services:
         ipv4_address: 192.168.32.5
       packaging_network:
         ipv4_address: 192.168.33.7
-  
+
   telegraf_forwarder:
     image: telegraf:latest
     container_name: telegraf_forwarder
+    cap_add:
+      - NET_ADMIN
     # restart: unless-stopped
     # user: telegraf:999 #you need to find the GID of Docker if not added to Sudo group, found user ID by getent passwd
     volumes:
@@ -91,12 +103,12 @@ services:
       # - '/var/run/docker.sock:/var/run/docker.sock' # to monitor docker containers
       # - '/home/ubuntu/docker/grafana-monitoring/telegraf/mibs:/usr/share/snmp/mibs' # mibs files [e.g., sophos]
     environment:
-        - HOST_ETC=/hostfs/etc
-        - HOST_PROC=/hostfs/proc
-        - HOST_SYS=/hostfs/sys
-        - HOST_VAR=/hostfs/var
-        - HOST_RUN=/hostfs/run
-        - HOST_MOUNT_PREFIX=/hostfs
+      - HOST_ETC=/hostfs/etc
+      - HOST_PROC=/hostfs/proc
+      - HOST_SYS=/hostfs/sys
+      - HOST_VAR=/hostfs/var
+      - HOST_RUN=/hostfs/run
+      - HOST_MOUNT_PREFIX=/hostfs
     networks:
       utilities_network:
         ipv4_address: 192.168.32.7
@@ -104,6 +116,8 @@ services:
 
   grafana:
     container_name: grafana
+    cap_add:
+      - NET_ADMIN
     image: grafana/grafana-oss:main-ubuntu
     user: "0"
     networks:
@@ -129,7 +143,6 @@ services:
       - "traefik.http.routers.grafana-secure.service=grafana"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.docker.network=enterprise_network"
-    
 
 networks:
   enterprise_network:

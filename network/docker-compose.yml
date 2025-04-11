@@ -2,22 +2,22 @@ services:
   god_debug:
     image: alpine:latest
     networks:
-        enterprise_network:
-          ipv4_address: 192.168.10.69
-        idmz_network:
-          ipv4_address: 192.168.20.69
-        industrial_network:
-          ipv4_address: 192.168.30.69
-        assembly_network:
-          ipv4_address: 192.168.31.69
-        utilities_network:
-          ipv4_address: 192.168.32.69 
-        packaging_network:
-          ipv4_address: 192.168.33.69
-        site_operations_network:
-          ipv4_address: 192.168.39.69
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
-    
+      enterprise_network:
+        ipv4_address: 192.168.10.69
+      idmz_network:
+        ipv4_address: 192.168.20.69
+      industrial_network:
+        ipv4_address: 192.168.30.69
+      assembly_network:
+        ipv4_address: 192.168.31.69
+      utilities_network:
+        ipv4_address: 192.168.32.69
+      packaging_network:
+        ipv4_address: 192.168.33.69
+      site_operations_network:
+        ipv4_address: 192.168.39.69
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+
   # Enterprise Router (Routes Enterprise <-> IDMZ)
   enterprise_router:
     build:
@@ -25,9 +25,6 @@ services:
       dockerfile: DockerFile
     container_name: enterprise_router
     hostname: enterprise_router
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/enterprise_router.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -38,7 +35,7 @@ services:
         ipv4_address: 192.168.10.10
       idmz_network:
         ipv4_address: 192.168.20.10
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
   # IDMZ Router (Routes IDMZ <-> Industrial)
   idmz_router:
@@ -46,9 +43,6 @@ services:
       context: ./routers
       dockerfile: DockerFile
     container_name: idmz_router
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/idmz_router.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -56,10 +50,10 @@ services:
       - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.11  # Gateway for IDMZ
+        ipv4_address: 192.168.20.11 # Gateway for IDMZ
       industrial_network:
-        ipv4_address: 192.168.30.10  # Gateway for Industrial Zone
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.30.10 # Gateway for Industrial Zone
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
   # Industrial Core Switch (Main switch in Industrial Zone)
   industrial_core_switch:
@@ -68,9 +62,6 @@ services:
       dockerfile: DockerFile
     container_name: industrial_core_switch
     hostname: industrial_core_switch
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/industrial_core_switch.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -85,7 +76,7 @@ services:
         ipv4_address: 192.168.32.254
       packaging_network:
         ipv4_address: 192.168.33.254
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
   # Assembly Switch (Enclave 1)
   assembly_switch:
@@ -94,9 +85,6 @@ services:
       dockerfile: DockerFile
     container_name: assembly_switch
     hostname: assembly_switch
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/assembly_switch.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -107,7 +95,7 @@ services:
         ipv4_address: 192.168.31.253
       industrial_network:
         ipv4_address: 192.168.30.251
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
   # Utilities Switch (Enclave 2)
   utilities_switch:
@@ -116,9 +104,6 @@ services:
       dockerfile: DockerFile
     container_name: utilities_switch
     hostname: utilities_switch
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/utilities_switch.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -129,7 +114,7 @@ services:
         ipv4_address: 192.168.32.253
       industrial_network:
         ipv4_address: 192.168.30.240
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
   # Packaging Switch (Enclave 3)
   packaging_switch:
@@ -138,9 +123,6 @@ services:
       dockerfile: DockerFile
     container_name: packaging_switch
     hostname: packaging_switch
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     volumes:
       - ./routers/packaging_switch.conf:/etc/frr/frr.conf:ro
       - ./routers/daemons:/etc/frr/daemons:ro
@@ -151,11 +133,11 @@ services:
         ipv4_address: 192.168.33.253
       industrial_network:
         ipv4_address: 192.168.30.249
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+    entrypoint: [ "/bin/sh", "-c", "/start_frr.sh" ]
 
 networks:
   enterprise_network:
-    name: enterprise_network  
+    name: enterprise_network
     driver: bridge
     ipam:
       config:
@@ -207,7 +189,7 @@ networks:
       config:
         - subnet: 192.168.33.0/24
         #  gateway: 192.168.33.254
-  
+
   site_operations_network:
     name: site_operations_network
     driver: bridge

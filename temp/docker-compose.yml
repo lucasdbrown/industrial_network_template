@@ -12,7 +12,6 @@ services:
   frr-router:
     container_name: frr-router
     image: frrouting/frr
-    privileged: true
     volumes:
       - ./frr.conf:/etc/frr/frr.conf
     networks:
