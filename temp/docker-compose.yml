@@ -1,0 +1,59 @@
+networks:
+  net1:
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+  net2:
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24
+
+services:
+  frr-router:
+    container_name: frr-router
+    image: frrouting/frr
+    privileged: true
+    volumes:
+      - ./frr.conf:/etc/frr/frr.conf
+    networks:
+      net1:
+        ipv4_address: 192.168.1.254
+      net2:
+        ipv4_address: 192.168.2.254
+    sysctls:
+      - net.ipv4.ip_forward=1
+
+  client1:
+    container_name: client1
+    image: alpine
+    command: sh -c "sleep infinity"
+    networks:
+      net1:
+        ipv4_address: 192.168.1.10
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - frr-router
+
+  client2:
+    container_name: client2
+    image: alpine
+    command: sh -c "sleep infinity"
+    networks:
+      net2:
+        ipv4_address: 192.168.2.10
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - frr-router
+
+  controller:
+    container_name: controller
+    build:
+      context: ./routing-controller
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - net1
+    depends_on:
+      - frr-router
