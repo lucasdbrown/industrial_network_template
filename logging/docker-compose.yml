@@ -88,31 +88,26 @@ services:
     env_file:
       - ../industrial/historian.env
     networks:
-      site_operations_network:
-        # ipv4_address: 192.168.32.7
+      utilities_network:
+        ipv4_address: 192.168.32.7
 
   grafana:
     container_name: grafana
     image: grafana/grafana-oss:latest
-    user: "0"
     networks:
-      site_operations_network: # ipv4_address: 192.168.10.15
+      enterprise_network:
+        ipv4_address: 192.168.10.15
     ports:
       - 3000:3000
-    # volumes:
-    #   - ./grafana:/var/lib/grafana
-    #   - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    #   - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-    #   - ./grafana/dashboards:/var/lib/grafana/dashboards
-    #   - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-    # grafana:
-    #   volumes:
-    #     - grafana-storage:/var/lib/grafana:rw
-
-
-
-
-
+    volumes:
+      #   - ./grafana:/var/lib/grafana
+      #   - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      #   - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      #   - ./grafana/dashboards:/var/lib/grafana/dashboards
+      #   - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      # grafana:
+      #   volumes:
+      - grafana-storage:/var/lib/grafana:rw
 
 networks:
   tempTIGtest:
@@ -131,3 +126,4 @@ networks:
 
 volumes:
   elasticsearch_data:
+  grafana-storage:
