@@ -1,10 +1,24 @@
-#!/bin/sh
+#!/bin/bash
 
 
 set -e
-# set -x
+set -x
 
 echo "[routing-controller] Starting..."
+
+declare -A install_cmds
+
+install_cmds=(
+  [alpine]="apk add --no-cache iproute2"
+  [debian]="apt update && apt install -y iproute2"
+  [ubuntu]="apt update && apt install -y iproute2"
+  [centos]="yum install -y iproute"
+  [fedora]="dnf install -y iproute"
+  [arch]="pacman -Sy --noconfirm iproute2"
+  [opensuse]="zypper install -y iproute2"
+)
+
+
 
 docker events --filter event=start |
 while read -r event; do
@@ -15,20 +29,37 @@ while read -r event; do
   # wait briefly to avoid race condition with net setup
   sleep 1
 
-  # Gets name of container
-  name="${container_id#name=}"
-  name="${name%)}"
 
   # Gets the role of the container
-  role=$(docker inspect $name | jq -r '.[0].Config.Labels["role"]')
+  role=$(docker inspect $container_id | jq -r '.[0].Config.Labels["role"]')
+
 
   # skip FRR or routing controller itself
-  if [[ $role == "router" || $name == "god_debug" ]]; then
-    echo "[routing-controller] Skipping $name"
+  if [[ $role == "router" || $container_id == "god_debug" ]]; then
+    echo "[routing-controller] Skipping $container_id"
     continue
   fi
 
-  network_name=$(docker inspect $name | jq -r '.[0].NetworkSettings.Networks | keys[]')
+
+  # if docker exec "$container_id" ip >/dev/null 2>&1; then
+  #   echo "[$container_id] 'ip' already installed."
+  #   continue
+  # fi
+
+  distro=$(docker exec "$container_id" sh -c 'cat /etc/os-release 2>/dev/null || uname -s' | grep -E '^ID=' | cut -d= -f2 | tr -d '"')
+
+  echo "[$container_id] Detected distro: $distro"
+
+  install_cmd="${install_cmds[$distro]}"
+
+  if [ -n "$install_cmd" ]; then
+    echo "[$container_id] Installing iproute2 using: $install_cmd"
+    docker exec "$container_id" sh -c "$install_cmd"
+  else
+    echo "[$container_id] No install command found for distro: $distro"
+  fi
+
+  network_name=$(docker inspect $container_id | jq -r '.[0].NetworkSettings.Networks | keys[]')
   
   net_id=$(docker network inspect $network_name | jq -r '.[0].IPAM.Config[0].Subnet')
 
@@ -36,8 +67,8 @@ while read -r event; do
   subnet=$(echo "$net_id" | awk -F'[./]' '{print $3}')
 
 
-  docker exec $name ip route del default
-  docker exec $name ip route add default via 192.168.$subnet.254
-  echo "$name added to the $subnet subnet route"
+  docker exec $container_id ip route del default
+  docker exec $container_id ip route add default via 192.168.$subnet.254
+  echo "$container_id added to the $subnet subnet route"
 
 done
