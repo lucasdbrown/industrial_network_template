@@ -203,8 +203,6 @@ networks:
       config:
         - subnet: 192.168.10.0/24
           gateway: 192.168.10.250
-    driver_opts:
-      com.docker.network.bridge.name: br_enterprise
 
   idmz_network:
     name: idmz_network
@@ -213,8 +211,6 @@ networks:
       config:
         - subnet: 192.168.20.0/24
           gateway: 192.168.20.250
-    driver_opts:
-      com.docker.network.bridge.name: br_idmz
 
   industrial_network:
     name: industrial_network
@@ -223,8 +219,6 @@ networks:
       config:
         - subnet: 192.168.30.0/24
           gateway: 192.168.30.250
-    driver_opts:
-      com.docker.network.bridge.name: br_industrial
 
   assembly_network:
     name: assembly_network
