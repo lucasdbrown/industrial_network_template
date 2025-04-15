@@ -2,12 +2,14 @@ services:
   web-app:
     image: nginx:latest
     container_name: web-app
+    cap_add:
+      - NET_ADMIN
     volumes:
       - ./html:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "0.0.0.0:8081:80"
-    expose: ["8081", "80"]
+    expose: [ "8081", "80" ]
     # extra_hosts:
     #   "random_enterprise.com:192.168.10.2"
     networks:
@@ -15,22 +17,26 @@ services:
         ipv4_address: 192.168.10.2
 
   web-app-db:
-     image: mysql:8.0
-     restart: unless-stopped
-     environment:
-       MYSQL_ROOT_PASSWORD: root
-       MYSQL_DATABASE: web-app-db
-       MYSQL_USER: webuser
-       MYSQL_PASSWORD: db
-     volumes:
-       - webapp_db_data:/var/lib/mysql
-     networks:
-       enterprise_network:
-         ipv4_address: 192.168.10.3
-     ports:
-       - "3308:3306"
+    image: mysql:8.0
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: web-app-db
+      MYSQL_USER: webuser
+      MYSQL_PASSWORD: db
+    volumes:
+      - webapp_db_data:/var/lib/mysql
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.3
+    ports:
+      - "3308:3306"
   client_1:
     image: alpine:latest
+    cap_add:
+      - NET_ADMIN
     stdin_open: true
     tty: true
     container_name: client_1
@@ -40,17 +46,17 @@ services:
     # dns:
     #   - 192.168.10.99
 
-  # dns-server:
-  #   image: strm/dnsmasq
-  #   container_name: dns-server
-  #   command: -A /random_enterprise.com/192.168.10.2
-  #   ports:
-  #     - "53:53/udp"  # If needed for host DNS resolution (optional)
-  #   networks:
-  #     enterprise_network:
-  #       ipv4_address: 192.168.10.99
-  #   network_mode: "host"
-  #   restart: unless-stopped
+    # dns-server:
+    #   image: strm/dnsmasq
+    #   container_name: dns-server
+    #   command: -A /random_enterprise.com/192.168.10.2
+    #   ports:
+    #     - "53:53/udp"  # If needed for host DNS resolution (optional)
+    #   networks:
+    #     enterprise_network:
+    #       ipv4_address: 192.168.10.99
+    #   network_mode: "host"
+    #   restart: unless-stopped
 
 networks:
   enterprise_network:

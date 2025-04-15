@@ -3,7 +3,7 @@
 echo "[+] Starting router: $HOSTNAME"
 
 # Enable IP forwarding (may still error if not privileged)
-sysctl -w net.ipv4.ip_forward=1 || echo "[!] Could not enable IP forwarding."
+# sysctl -w net.ipv4.ip_forward=1 || echo "[!] Could not enable IP forwarding."
 
 # Start daemons (config already mounted into place)
 echo "[+] Starting FRR daemons..."

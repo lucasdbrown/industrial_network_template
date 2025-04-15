@@ -7,8 +7,10 @@ services:
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
-    entrypoint: ["gunicorn", "app:app", "-b", "0.0.0.0:5000"]
+    entrypoint: [ "gunicorn", "app:app", "-b", "0.0.0.0:5000" ]
     container_name: openplc_hmi
+    cap_add:
+      - NET_ADMIN
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
@@ -27,19 +29,23 @@ services:
     #   - openplc
     stdin_open: true
     tty: true
+    cap_add:
+      - NET_ADMIN
     ports:
       - "502:502"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.3
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   openplc:
     build:
       context: .
       dockerfile: industrial_component/openplc/Dockerfile
-    stdin_open: true 
+    stdin_open: true
     tty: true
+    cap_add:
+      - NET_ADMIN
     container_name: openplc
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
@@ -58,6 +64,8 @@ services:
     networks:
       assembly_network:
         ipv4_address: 192.168.31.5
+    cap_add:
+      - NET_ADMIN
     ports:
       - "1883:1883"
       - "9001:9001"
@@ -65,10 +73,12 @@ services:
       - ./mqtt/config:/mosquitto/config # loads the mosquitto config file
       # - ./mqtt/data:/mosquitto/data # If you enable persistence true in mosquitto.conf, this is where message queues and subscriptions are stored across restarts.
       - ./mqtt/log:/mosquitto/log # can be used for logging MQTT connect/disconnect messages
-    
+
   node_red:
     image: nodered/node-red
     container_name: node_red
+    cap_add:
+      - NET_ADMIN
     networks:
       assembly_network:
         ipv4_address: 192.168.31.6
@@ -97,14 +107,16 @@ services:
   # Utilities Enclave Services
   scadalts:
     image: scadalts/scadalts:latest
+    cap_add:
+      - NET_ADMIN
     environment:
       - CATALINA_OPTS=-Xmx2G -Xms2G
       - JAVA_OPTS=-Dlogback.configurationFile=/usr/local/tomcat/lib/logback.xml
-    ports: 
+    ports:
       - "0.0.0.0:8000:8080"
-    depends_on: 
+    depends_on:
       - database
-    expose: ["8080", "8000"]
+    expose: [ "8080", "8000" ]
     volumes:
       - ./tomcat_log:/usr/local/tomcat/logs:rw
       - ./industrial/scada/logback.xml:/usr/local/tomcat/lib/logback.xml:ro
@@ -124,18 +136,20 @@ services:
     networks:
       utilities_network:
         ipv4_address: 192.168.32.2
-    
+
   database:
     container_name: mysql_database
     image: mysql/mysql-server:8.0.32
+    cap_add:
+      - NET_ADMIN
     ports:
       - "0.0.0.0:3307:3306"
-    environment: 
+    environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=scadalts
-    expose: ["3307"]
+    expose: [ "3307" ]
     volumes:
       - ./db_data:/var/lib/mysql:rw
       - ./db_conf:/etc/mysql:ro
@@ -143,12 +157,14 @@ services:
     networks:
       utilities_network:
         ipv4_address: 192.168.32.3
-    
+
   bacnet_server:
-    build: 
+    build:
       context: ./bacnet_server
       dockerfile: DockerFile
     container_name: bacnet_server
+    cap_add:
+      - NET_ADMIN
     networks:
       utilities_network:
         ipv4_address: 192.168.32.4
@@ -168,8 +184,10 @@ services:
   opc_ua_server:
     image: open62541/open62541:latest
     container_name: opc_ua_server
+    cap_add:
+      - NET_ADMIN
     ports:
-      - "4840:4840"  # OPC UA default port
+      - "4840:4840" # OPC UA default port
     environment:
       - OPCUA_SERVER_NAME=Utilities_Server
       - OPCUA_NAMESPACE_URI=http://example.com/opcua
@@ -181,6 +199,8 @@ services:
   rfid_database:
     image: rfidapp/rfid-app-database
     container_name: rfid_database
+    cap_add:
+      - NET_ADMIN
     networks:
       packaging_network:
         ipv4_address: 192.168.33.3
@@ -188,6 +208,8 @@ services:
   inventory_db:
     image: mysql/mysql-server:8.0
     container_name: inventory_db
+    cap_add:
+      - NET_ADMIN
     environment:
       MYSQL_ROOT_PASSWORD: inventory_pass
     networks:
@@ -197,6 +219,8 @@ services:
   inventory_client:
     image: ubuntu:latest
     container_name: inventory_client
+    cap_add:
+      - NET_ADMIN
     stdin_open: true
     tty: true
     depends_on:
@@ -207,6 +231,8 @@ services:
 
   barcode_scanner:
     container_name: barcode_scanner
+    cap_add:
+      - NET_ADMIN
     build:
       context: ./barcode_scanner
       dockerfile: DockerFile
@@ -221,43 +247,51 @@ services:
   ftp_server:
     image: delfer/alpine-ftp-server:latest
     container_name: ftp_server
+    cap_add:
+      - NET_ADMIN
     environment:
       USERS: "frp_user|alpine_fun_password123!"
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.2
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
   historian-db:
     image: influxdb:latest
     container_name: historian-db
+    cap_add:
+      - NET_ADMIN
     environment:
       - INFLUXDB_DB=historian
       - INFLUXDB_USER=admin
       - INFLUXDB_PASSWORD=securepass
     volumes:
-        - historian_data:/var/lib/influxdb
+      - historian_data:/var/lib/influxdb
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.3
- 
+
   historian-client:
-      image: ubuntu:latest
-      stdin_open: true
-      tty: true
-      container_name: historian-client
-      depends_on:
-        - historian-db
-      networks:
-        site_operations_network:
-          ipv4_address: 192.168.39.4
-  
+    image: ubuntu:latest
+    stdin_open: true
+    tty: true
+    container_name: historian-client
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - historian-db
+    networks:
+      site_operations_network:
+        ipv4_address: 192.168.39.4
+
   historian-server:
     build:
       context: ./site_operations
       dockerfile: DockerFile
     container_name: historian-server
+    cap_add:
+      - NET_ADMIN
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.5
@@ -267,12 +301,14 @@ services:
       - "8001:5000"
 
   vds:
-    image: dorowu/ubuntu-desktop-lxde-vnc  # Prebuilt lightweight Ubuntu Desktop that has 4 virtual desktops
+    image: dorowu/ubuntu-desktop-lxde-vnc # Prebuilt lightweight Ubuntu Desktop that has 4 virtual desktops
     container_name: vds
+    cap_add:
+      - NET_ADMIN
     restart: unless-stopped
     ports:
-      - "5901:5901"  # VNC Access
-      - "8082:80"    # Web-based noVNC Access
+      - "5901:5901" # VNC Access
+      - "8082:80" # Web-based noVNC Access
     environment:
       - VNC_PASSWORD=securepassword
     networks:
@@ -290,7 +326,7 @@ networks:
     external: true
   site_operations_network:
     external: true
-  
+
 volumes:
   openplc_data:
   scada_databases:

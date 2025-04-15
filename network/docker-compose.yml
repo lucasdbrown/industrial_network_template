@@ -1,166 +1,208 @@
 services:
   god_debug:
     image: alpine:latest
+    container_name: god_debug
+    cap_add:
+      - NET_ADMIN
     networks:
-        enterprise_network:
-          ipv4_address: 192.168.10.69
-        idmz_network:
-          ipv4_address: 192.168.20.69
-        industrial_network:
-          ipv4_address: 192.168.30.69
-        assembly_network:
-          ipv4_address: 192.168.31.69
-        utilities_network:
-          ipv4_address: 192.168.32.69 
-        packaging_network:
-          ipv4_address: 192.168.33.69
-        site_operations_network:
-          ipv4_address: 192.168.39.69
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
-    
+      enterprise_network:
+        ipv4_address: 192.168.10.69
+      idmz_network:
+        ipv4_address: 192.168.20.69
+      industrial_network:
+        ipv4_address: 192.168.30.69
+      assembly_network:
+        ipv4_address: 192.168.31.69
+      utilities_network:
+        ipv4_address: 192.168.32.69
+      packaging_network:
+        ipv4_address: 192.168.33.69
+      site_operations_network:
+        ipv4_address: 192.168.39.69
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+
+  controller:
+    container_name: controller
+    privileged: true
+    build:
+      context: ./routing-controller
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+
   # Enterprise Router (Routes Enterprise <-> IDMZ)
   enterprise_router:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: enterprise_router.conf
     container_name: enterprise_router
     hostname: enterprise_router
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/enterprise_router.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       enterprise_network:
-        ipv4_address: 192.168.10.10
-      idmz_network:
-        ipv4_address: 192.168.20.10
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.10.254
+      1_network:
+        ipv4_address: 192.168.1.254
+      2_network:
+        ipv4_address: 192.168.2.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
+    # entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+
+  idmz_firewall:
+    image: alpine
+    networks:
+      2_network:
+        ipv4_address: 192.168.2.253
+      3_network:
+        ipv4_address: 192.168.3.253
+      4_network:
+        ipv4_address: 192.168.4.253
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   # IDMZ Router (Routes IDMZ <-> Industrial)
   idmz_router:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: idmz_router.conf
     container_name: idmz_router
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/idmz_router.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.11  # Gateway for IDMZ
-      industrial_network:
-        ipv4_address: 192.168.30.10  # Gateway for Industrial Zone
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.20.254
+      3_network:
+        ipv4_address: 192.168.3.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   # Industrial Core Switch (Main switch in Industrial Zone)
   industrial_core_switch:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: industrial_core_switch.conf
     container_name: industrial_core_switch
     hostname: industrial_core_switch
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/industrial_core_switch.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
-      industrial_network:
-        ipv4_address: 192.168.30.253
-      assembly_network:
-        ipv4_address: 192.168.31.254
-      utilities_network:
-        ipv4_address: 192.168.32.254
-      packaging_network:
-        ipv4_address: 192.168.33.254
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+      site_operations_network:
+        ipv4_address: 192.168.39.254
+      4_network:
+        ipv4_address: 192.168.4.254
+      5_network:
+        ipv4_address: 192.168.5.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
+
+  ot_firewall:
+    image: alpine
+    networks:
+      5_network:
+        ipv4_address: 192.168.5.253
+      6_network:
+        ipv4_address: 192.168.6.253
+      7_network:
+        ipv4_address: 192.168.7.253
+      8_network:
+        ipv4_address: 192.168.8.253
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   # Assembly Switch (Enclave 1)
   assembly_switch:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: assembly_switch.conf
     container_name: assembly_switch
     hostname: assembly_switch
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/assembly_switch.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       assembly_network:
-        ipv4_address: 192.168.31.253
-      industrial_network:
-        ipv4_address: 192.168.30.251
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.31.254
+      6_network:
+        ipv4_address: 192.168.6.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   # Utilities Switch (Enclave 2)
   utilities_switch:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: utilities_switch.conf
     container_name: utilities_switch
     hostname: utilities_switch
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/utilities_switch.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       utilities_network:
-        ipv4_address: 192.168.32.253
-      industrial_network:
-        ipv4_address: 192.168.30.240
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.32.254
+      7_network:
+        ipv4_address: 192.168.7.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   # Packaging Switch (Enclave 3)
   packaging_switch:
     build:
       context: ./routers
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: packaging_switch.conf
     container_name: packaging_switch
     hostname: packaging_switch
+    sysctls:
+      - net.ipv4.ip_forward=1
     cap_add:
       - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/packaging_switch.conf:/etc/frr/frr.conf:ro
-      - ./routers/daemons:/etc/frr/daemons:ro
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro
     networks:
       packaging_network:
-        ipv4_address: 192.168.33.253
-      industrial_network:
-        ipv4_address: 192.168.30.249
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"]
+        ipv4_address: 192.168.33.254
+      8_network:
+        ipv4_address: 192.168.8.254
+    labels:
+      - role=router
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
 networks:
   enterprise_network:
-    name: enterprise_network  
+    name: enterprise_network
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.10.0/24
-          #gateway: 192.168.10.1
+          gateway: 192.168.10.250
     driver_opts:
       com.docker.network.bridge.name: br_enterprise
 
@@ -170,7 +212,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.20.0/24
-          #gateway: 192.168.20.1
+          gateway: 192.168.20.250
     driver_opts:
       com.docker.network.bridge.name: br_idmz
 
@@ -180,7 +222,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.30.0/24
-          #gateway: 192.168.30.1
+          gateway: 192.168.30.250
     driver_opts:
       com.docker.network.bridge.name: br_industrial
 
@@ -190,7 +232,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.31.0/24
-        # gateway: 192.168.31.254
+          gateway: 192.168.31.250
 
   utilities_network:
     name: utilities_network
@@ -198,7 +240,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.32.0/24
-        #  gateway: 192.168.32.254
+          gateway: 192.168.32.250
 
   packaging_network:
     name: packaging_network
@@ -206,12 +248,68 @@ networks:
     ipam:
       config:
         - subnet: 192.168.33.0/24
-        #  gateway: 192.168.33.254
-  
+          gateway: 192.168.33.250
+
   site_operations_network:
     name: site_operations_network
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.39.0/24
-        #  gateway: 192.168.39.254 
+          gateway: 192.168.39.250
+
+  1_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.250
+
+  2_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24
+          gateway: 192.168.2.250
+
+  3_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.3.0/24
+          gateway: 192.168.3.250
+
+  4_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.4.0/24
+          gateway: 192.168.4.250
+
+  5_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.5.0/24
+          gateway: 192.168.5.250
+
+  6_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.6.0/24
+          gateway: 192.168.6.250
+
+  7_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.7.0/24
+          gateway: 192.168.7.250
+
+  8_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.8.0/24
+          gateway: 192.168.8.250

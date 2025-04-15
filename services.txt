@@ -4,9 +4,12 @@ web-app-db
 client_1
 ./network/docker-compose.yml
 god_debug
+controller
 enterprise_router
+idmz_firewall
 idmz_router
 industrial_core_switch
+ot_firewall
 assembly_switch
 utilities_switch
 packaging_switch
@@ -25,10 +28,12 @@ mqtt_broker
 node_red
 scadalts
 database
+bacnet_server
 opc_ua_server
 rfid_database
 inventory_db
 inventory_client
+barcode_scanner
 ftp_server
 historian-db
 historian-client

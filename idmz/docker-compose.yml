@@ -4,6 +4,8 @@ services:
     stdin_open: true
     tty: true
     container_name: reverse-proxy
+    cap_add:
+      - NET_ADMIN
     volumes:
       - ./nginx/nginx.conf/:/etc/nginx/nginx.conf:ro
       - ../logging/logs/nginx:/var/log/nginx
@@ -19,6 +21,8 @@ services:
   remote-desktop-gateway:
     image: guacamole/guacamole
     container_name: remote-desktop-gateway
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - guacd
       - postgres
@@ -37,6 +41,8 @@ services:
   guacd:
     image: guacamole/guacd
     container_name: guacd
+    cap_add:
+      - NET_ADMIN
     networks:
       idmz_network:
         ipv4_address: 192.168.20.4
@@ -44,6 +50,8 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres
+    cap_add:
+      - NET_ADMIN
     environment:
       - POSTGRES_DB=guacdb
       - POSTGRES_USER=guacadmin
