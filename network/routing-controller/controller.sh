@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-set -e
 set -x
+set +e
 
 echo "[routing-controller] Starting..."
 
@@ -16,14 +16,18 @@ install_cmds=(
   [fedora]="dnf install -y iproute"
   [arch]="pacman -Sy --noconfirm iproute2"
   [opensuse]="zypper install -y iproute2"
+  [ol]="microdnf install -y iproute"
 )
 
+# telegraf
+# rfid_database
+# barcode_scanner
 
 
 docker events --filter event=start |
 while read -r event; do
   # extract container ID
-  container_id=$(echo "$event"  | awk -F'name=' '{print $2}' | cut -d',' -f1 | cut -d')' -f1)
+  container_id=$(echo "$event"  | awk -F' name=' '{print $2}' | cut -d',' -f1 | cut -d')' -f1)
   echo "[routing-controller] New container started: $container_id"
 
   # wait briefly to avoid race condition with net setup
@@ -46,7 +50,7 @@ while read -r event; do
   #   continue
   # fi
 
-  distro=$(docker exec "$container_id" sh -c 'cat /etc/os-release 2>/dev/null || uname -s' | grep -E '^ID=' | cut -d= -f2 | tr -d '"')
+  distro=$(docker exec "$container_id" sh -c 'cat /etc/os-release 2>/dev/null' | grep -E '^ID=' | cut -d= -f2 | tr -d '"')
 
   echo "[$container_id] Detected distro: $distro"
 
@@ -54,7 +58,7 @@ while read -r event; do
 
   if [ -n "$install_cmd" ]; then
     echo "[$container_id] Installing iproute2 using: $install_cmd"
-    docker exec "$container_id" sh -c "$install_cmd"
+    docker exec -u root "$container_id" sh -c "$install_cmd"
   else
     echo "[$container_id] No install command found for distro: $distro"
   fi
@@ -67,8 +71,8 @@ while read -r event; do
   subnet=$(echo "$net_id" | awk -F'[./]' '{print $3}')
 
 
-  docker exec $container_id ip route del default
-  docker exec $container_id ip route add default via 192.168.$subnet.254
+  docker exec -u root $container_id ip route del default
+  docker exec -u root $container_id ip route add default via 192.168.$subnet.254
   echo "$container_id added to the $subnet subnet route"
 
 done

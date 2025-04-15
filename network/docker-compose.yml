@@ -26,6 +26,7 @@ services:
     privileged: true
     build:
       context: ./routing-controller
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
