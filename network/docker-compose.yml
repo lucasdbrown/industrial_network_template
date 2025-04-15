@@ -57,7 +57,17 @@ services:
     # entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   idmz_firewall:
-    image: alpine
+    build:
+      context: ./routers
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: idmz_firewall.conf
+    container_name: idmz_firewall
+    hostname: idmz_firewall
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - NET_ADMIN
     networks:
       2_network:
         ipv4_address: 192.168.2.253
@@ -67,7 +77,7 @@ services:
         ipv4_address: 192.168.4.253
     labels:
       - role=router
-    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   # IDMZ Router (Routes IDMZ <-> Industrial)
   idmz_router:
@@ -115,7 +125,17 @@ services:
     entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   ot_firewall:
-    image: alpine
+    build:
+      context: ./routers
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: ot_firewall.conf
+    container_name: ot_firewall
+    hostname: ot_firewall
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - NET_ADMIN
     networks:
       5_network:
         ipv4_address: 192.168.5.253
@@ -127,7 +147,7 @@ services:
         ipv4_address: 192.168.8.253
     labels:
       - role=router
-    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+    entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
 
   # Assembly Switch (Enclave 1)
   assembly_switch:
