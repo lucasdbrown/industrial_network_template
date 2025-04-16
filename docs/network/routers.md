@@ -1,63 +1,131 @@
-# The Routers
+# 🛠️ Docker Network Routing Architecture
 
-List of the Routers (functions as router):
-- enterprise_router
-- idmz_router
-- industrial_core_switch
-- assembly_switch 
-- utilities_switch 
-- packaging_switch 
+## Overview
+Routing is done in this project using frr routing containers and a controller container that updates the default route of all other containers when they turn on.
+- All routers IP need to end in `.254`
+- All firewall IP need to end in `.253`
+- All Containers need in the compose `cap_add: NET_ADMIN`
+---
 
-## How the Routers actually work with FRR_Routing
-Each router has a `.conf` file in the `network/routers/` folder that defines a hostname, it being integrated with `vtysh`, and the networks it's apart of. Each router has a service configuration in the `docker-compose.yml` in the network folder. Each router uses the `start_frr.sh` script that starts frr_routing stack, makes the container behave like a real router (not just an idle shell), and delegates routing behavior per device. Each router uses the `setup_routes.sh` script that adds static default routes depending on which router is running, injects default routes before OSPF convergence is complete, and allows enclave switches to know where to send traffic “upstream.”
+## Routing Architecture
 
-Example Router `docker-compose` service configuration for Router:
-```yaml
-example_router:
-    build:
-      context: ./routers
-      dockerfile: DockerFile
-    container_name: example_router
-    hostname: example_router
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
-    volumes:
-      - ./routers/example_router.conf:/etc/frr/frr.conf:ro # mounts the router configuration in container
-      - ./routers/daemons:/etc/frr/daemons:ro # mounts the daemons file in the container
-      - ./routers/start_frr.sh:/mnt/start_frr.sh:ro # mounts the bash script to start frr_routing
-      - ./routers/setup_routes.sh:/mnt/setup_routes.sh:ro # mounts the bash script to make static routes
-    networks:
-      example_network:
-        ipv4_address: 192.168.90.10
-    entrypoint: ["/bin/sh", "-c", "/start_frr.sh"] 
+- All routers are labeled with `role=router`.
+- Containers representing routers configure their static routes using `setup_routes.sh`.
+- Each router is configured based on its hostname (e.g., `enterprise_router`, `idmz_router`).
+- Networks `1` through `8` are reserved solely for routing between firewalls and routers.
+- Non-router containers (such as sensors, apps, or services) must route traffic through their designated router by setting it as their **default gateway** and not through dockers router that will always be `.250` as the ip address.
+
+---
+
+## Requirements for Containers
+
+- Every container **must** be given `cap_add: NET_ADMIN` in its Docker configuration to allow it to change network routes.
+- Only containers **not** labeled `role=router` will have their routes adjusted automatically.
+
+---
+
+## Routing Controller
+
+A container named `controller` listens for Docker container startup events. When a new container starts:
+
+1. The controller:
+   - Detects the container’s operating system.
+   - Installs the `iproute2` utility if it is not already present.
+   - Skips containers labeled `role=router`.
+
+2. It then:
+   - Determines the subnet the container is on.
+   - Sets the default route for the container to use `.254` as its gateway on that subnet.
+
+### Sample Behavior
+
+If a container is on the `192.168.10.0/24` subnet, its default route will be:
+```sh
+ip route add default via 192.168.10.254
 ```
 
-## Testing functionality of Routers and Switches
+The controller gets the container's role and network from Docker events and uses `jq` to inspect metadata. It supports multiple Linux distros using preconfigured install commands.
 
-Have to run `vtysh` first for the other commands to work. It should give you a message like this after running `vtysh`:
-```yaml
-% Can't open configuration file /etc/frr/vtysh.conf due to 'No such file or directory'.
+> See `controller.sh` for implementation details. Located in `network/routing-controller/`
 
-Hello, this is FRRouting (version 8.4_git).
-Copyright 1996-2005 Kunihiro Ishiguro, et al.
+---
+
+## Router Configuration via `setup_routes.sh`
+
+Each router runs the `setup_routes.sh` script to configure its static routes. Routes vary by hostname.
+
+### Example: `enterprise_router`
+
+- Default gateway: `192.168.1.253`
+- Routes added to internal networks via `192.168.2.253`:
+```sh
+for i in 3 4 5 6 7 8 20 30 39 33 32 31; do
+  ip route add 192.168.$i.0/24 via 192.168.2.253
+done
 ```
 
-```bash
-vtysh 
+### Example: `idmz_router`
 
-show ip route
+- Default route goes through: `192.168.2.253`
 
-show ip ospf neighbor
+### Example: `industrial_core_switch`
 
-show ip ospf interface
+- Default route: `192.168.4.253`
+- Adds routes to OT networks via `192.168.5.253`:
+```sh
+for i in 6 7 8 33 32 31; do
+  ip route add 192.168.$i.0/24 via 192.168.5.253
+done
 ```
 
-You can also check functionality without doing `vtysh`
-```bash
-vtysh -c "show ip route"
+### Other Examples:
 
-vtysh -c "show ip ospf database"
-vtysh -c "show ip ospf neighbor"
-vtysh -c "show ip ospf interface"
+- `assembly_switch` → default via `192.168.6.253`
+- `utilities_switch` → default via `192.168.7.253`
+- `packaging_switch` → default via `192.168.8.253`
+- `enterprise_firewall` → default via `192.168.0.254`
+- `idmz_firewall` → default via `192.168.2.254`, internal routes via `192.168.4.254`
+- `ot_firewall` → default via `192.168.5.254`, OT routes via `192.168.5.253`
+
+If no match is found, the script exits with no routes.
+
+> See `setup_routes.sh` for full route definitions. Located in `network/routers/`
+
+---
+
+## OSPF Configuration
+
+Routers like `enterprise_router` also support dynamic routing via OSPF using FRRouting (FRR).
+
+### Example Configuration (`enterprise_router.conf`)
+```frr
+router ospf
+ log-adjacency-changes
+ network 192.168.10.0/24 area 0
+ network 192.168.20.0/24 area 0
 ```
+
+This configuration enables OSPF adjacency logging and announces two internal networks to the routing domain.
+
+> See `enterprise_router.conf` for a complete example.
+
+---
+
+## Boot Process Summary
+
+1. **Routers start** and run `setup_routes.sh`.
+2. **Controller starts** and waits for new containers.
+3. **Non-router containers start**:
+   - Controller installs `iproute2` if missing.
+   - Controller sets the default route to their appropriate `.254` gateway.
+4. All containers are now interconnected via routers and firewalls.
+
+---
+
+## Notes
+
+- This system assumes consistent subnet structure (`192.168.X.0/24`) and that all routers use `.254` as their IP within a subnet.
+- Controllers rely on container labels and hostnames to determine behavior—ensure these are configured correctly in the compose files.
+- If your container distro is not supported in the controller install commands, you may need to manually extend `controller.sh` with the appropriate package manager command.
+
+
