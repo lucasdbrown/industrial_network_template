@@ -262,15 +262,17 @@ services:
     container_name: historian-db
     cap_add:
       - NET_ADMIN
-    environment:
-      - INFLUXDB_DB=historian
-      - INFLUXDB_USER=admin
-      - INFLUXDB_PASSWORD=securepass
+    env_file:
+      - ./historian.env
     volumes:
-      - historian_data:/var/lib/influxdb
+      - historian_data:/var/lib/influxdb2:rw
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.3
+    ports:
+      - 8087:8086
+    entrypoint: [ "./entrypoint.sh" ]
+    # entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   historian-client:
     image: ubuntu:latest
