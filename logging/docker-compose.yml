@@ -2,19 +2,15 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.0.0
     container_name: kibana
-    cap_add:
-      - NET_ADMIN
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-      XPACK_SECURITY_ENCRYPTIONKEY: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      XPACK_REPORTING_ENCRYPTIONKEY: "cccccccccccccccccccccccccccccccc"
-      XPACK_REPORTING_KIBANASERVER_HOSTNAME: "localhost"
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./elk-config/kibana:/usr/share/kibana/config
     networks:
       idmz_network:
         ipv4_address: 192.168.20.16
-    ports:
-      - 5601:5601
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
@@ -39,33 +35,29 @@ services:
   logstash_idmz:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_idmz
-    cap_add:
-      - NET_ADMIN
-    depends_on:
-      - elasticsearch
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - ./elk-config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
     networks:
       idmz_network:
         ipv4_address: 192.168.20.8
-    ports:
-      - 5003:5000
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
   logstash_site_operations:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash_site_operations
-    cap_add:
-      - NET_ADMIN
-    depends_on:
-      - elasticsearch
+    ports:
+      - "5045:5044"
+      - "9601:9600"
+    volumes:
+      - ./elk-config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
     networks:
       site_operations_network:
         ipv4_address: 192.168.39.7
-    ports:
-      - 5002:5000
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-
+  
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.0.0
     container_name: filebeat
@@ -76,11 +68,12 @@ services:
       - logstash_idmz
       - logstash_site_operations
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw # Mount configuration file
+      - ./elk-config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw  # Mount configuration file
       - ./logs:/logs:ro # Mount logs directory explicitly
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./tomcat_log:/var/log/scada:ro
+      # Add volumes like: "- ./logs/nginx_logs:/logs/nginx"
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/run/docker.sock:/var/run/docker.sock
+      # - ./tomcat_log:/var/log/scada:ro
     command: [ "sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e -strict.perms=false", "filebeat modules enable elasticsearch" ]
     networks:
       assembly_network:

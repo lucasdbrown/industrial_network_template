@@ -52,9 +52,11 @@ filebeat.inputs:
     multiline.match: after
     exclude_files: ['\.gz$']
 
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
+# Output to Logstash (change host/IP if needed)
+output.logstash:
+  hosts: ["logstash_idmz:5044"]
+  ssl.enabled: false
+  loadbalance: true
 
 # Enriching logs with container and host metadata
 processors:
@@ -62,13 +64,7 @@ processors:
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
 
-# Output to Logstash (change host/IP if needed)
-output.logstash:
-  hosts: ["logstash_idmz:5000"]
-  ssl.enabled: false
-  loadbalance: true
-
-# Optional: monitoring setup
-setup.template.settings:
-  index.number_of_shards: 1
+monitoring.enabled: true
+monitoring.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
 
