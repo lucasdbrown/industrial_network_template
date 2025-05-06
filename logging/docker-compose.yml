@@ -2,6 +2,8 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.0.0
     container_name: kibana
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - elasticsearch
     ports:
@@ -15,6 +17,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
     container_name: elasticsearch
+    cap_add:
+      - NET_ADMIN
     networks:
       idmz_network:
         ipv4_address: 192.168.20.6
@@ -27,6 +31,8 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.0.0
     container_name: logstash
+    cap_add:
+      - NET_ADMIN
     ports:
       - "5044:5044"
       - "9600:9600"
@@ -38,14 +44,16 @@ services:
         ipv4_address: 192.168.20.8
       site_operations_network:
         ipv4_address: 192.168.39.7
-  
+
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.0.0
     container_name: filebeat
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - logstash
     volumes:
-      - ./elk-config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw  # Mount configuration file
+      - ./elk-config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw # Mount configuration file
     command: filebeat -e --strict.perms=false
     networks:
       assembly_network:
@@ -89,7 +97,6 @@ services:
       - grafana-storage:/var/lib/grafana:rw
 
 networks:
-  tempTIGtest:
   enterprise_network:
     external: true
   idmz_network:
