@@ -74,12 +74,12 @@ rm -f ../build_core.sh
 # OPTIONS="Blank Modbus Fischertechnik RaspberryPi UniPi PiXtend PiXtend_2S Arduino ESP8266 Arduino+RaspberryPi Simulink "
 # select opt in $OPTIONS; do
 	# if [ "$opt" = "Blank" ]; then
-	# 	cp ./hardware_layers/blank.cpp ./hardware_layer.cpp
-	# 	cp ./core_builders/build_normal.sh ../build_core.sh
-	# 	echo [OPENPLC]
-	# 	cd ..
-	# 	./build_core.sh
-	# 	exit
+		# cp ./hardware_layers/blank.cpp ./hardware_layer.cpp
+		# cp ./core_builders/build_normal.sh ../build_core.sh
+		# echo [OPENPLC]
+		# cd ..
+		# ./build_core.sh
+		#exit
 	# elif [ "$opt" = "Modbus" ]; then
 cp ./hardware_layers/modbus_master.cpp ./hardware_layer.cpp
 cp ./core_builders/build_modbus.sh ../build_core.sh
@@ -93,7 +93,7 @@ sudo ldconfig
 echo [OPENPLC]
 cd ..
 ./build_core.sh
-# exit
+		# exit
 	# elif [ "$opt" = "Fischertechnik" ]; then
 	# 	cp ./hardware_layers/fischertechnik.cpp ./hardware_layer.cpp
 	# 	cp ./core_builders/build_rpi.sh ../build_core.sh

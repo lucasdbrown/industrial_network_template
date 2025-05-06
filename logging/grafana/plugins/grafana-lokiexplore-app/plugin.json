@@ -1,13 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "autoEnabled": true,
+  "buildMode": "production",
   "dependencies": {
     "extensions": {
       "exposedComponents": [
         "grafana-adaptivelogs-app/temporary-exemptions/v1"
       ]
     },
-    "grafanaDependency": "\u003e=11.3.0",
+    "grafanaDependency": "\u003e=11.6.0",
     "plugins": []
   },
   "extensions": {
@@ -31,10 +32,6 @@
     "extensionPoints": [
       {
         "id": "grafana-lokiexplore-app/investigation/v1"
-      },
-      {
-        "id": "grafana-lokiexplore-app/toolbar-open-related/v1",
-        "title": "Open related signals like metrics/traces/profiles"
       }
     ]
   },
@@ -54,11 +51,11 @@
       "name": "Grafana"
     },
     "build": {
-      "time": 1742399020282,
+      "time": 1746122175062,
       "repo": "https://github.com/grafana/logs-drilldown",
       "branch": "main",
-      "hash": "7e460b5135a94ff8da2e783c1dbe08d5944de772",
-      "build": 2015
+      "hash": "88f7e4800e050904d9d79fb4ca230447b2968663",
+      "build": 2418
     },
     "description": "Visualize log volumes to easily detect anomalies or significant changes over time, without needing to compose LogQL queries.",
     "keywords": [
@@ -99,8 +96,8 @@
         "path": "img/table.png"
       }
     ],
-    "updated": "2025-03-19",
-    "version": "1.0.9"
+    "updated": "2025-05-01",
+    "version": "1.0.14"
   },
   "name": "Grafana Logs Drilldown",
   "preload": true,

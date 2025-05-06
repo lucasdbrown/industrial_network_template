@@ -19,7 +19,7 @@ def current_time():
 
 @app.route('/api',methods=['POST','GET'])
 def api():
-    host = '192.168.31.3'
+    host = '192.168.31.4'
     port = 502
     client = ModbusTcpClient(host, port)
     client.connect()

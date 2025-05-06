@@ -1,5 +1,116 @@
 # Changelog
 
+## 1.0.14
+
+##### Chores
+
+* **docker-compose:**  update loki to 3.5.0  (#1235) (a1a763c3)
+*  add a few fixes to the logs needed for the GrafanaCon talk (#1231) (02661080)
+*  update version check for controls (#1220) (7fa43723)
+*  otel generator changes (#1206) (60738a68)
+*  add changelog (ac81678c)
+* **zizmor:**  update for template-injection (#1222) (e565937a)
+* **gh actions:**  check pr titles for conventional commits (#1218) (8d6f25df)
+
+##### New Features
+
+*  Use new Log Controls component (#1204) (a58e2762)
+*  JSON Viz (#1209)" (#1210) (5e014e98)
+*  support numeric operators for int fields (#1227) (4f4b7981)
+
+##### Bug Fixes
+
+* **line-filters:**  Expand no longer working. (#1238) (1dbbb75d)
+*  Empty results layout in JSON and Table (#1236) (beb9489e)
+*  Panel menu visibility in json (#1216) (af1ed41a)
+*  JSON - line format containing unsupported chars (#1214) (c2c8bf23)
+* **table:**  missing line filter (#1237) (a1a4ea82)
+* **zizmor:**  fix conventional-commits error (#1229) (93cc282c)
+
+## 1.0.13
+
+##### Bug Fixes
+
+*  Fix issue with release pipeline
+
+## 1.0.12
+
+##### Chores
+
+*  Remove `ToolbarExtensionsRenderer` (#1187) (ba7383ac)
+*  (Provisioning) - Add loki datasource and env (#1175) (9d319574)
+*  (Grafana 11.6) - Update to latest grafana 11.6 and latest plugin libraries, remove comments (#1162) (d8edbcb5)
+*  Updating to Scenes v6 (#1019) (a13d9e21)
+*  Conditionally display "show logs" buttons (#1194) (fad95388)
+*  Simplify panel buttons (#1188) (37c50063)
+
+##### New Features
+
+*  (LogPanelTable) - Sync the display fields and urlColumns between the logs panel and table (#1189) (139c5803)
+*  (LayoutSwitcher) - Set layoutSwitcher from localStorage (#1172) (df7454e3)
+*  Line filter validation (#1190) (f38aa5fd)
+
+##### Bug Fixes
+
+*  Patterns table displaying percentage relative to current search results (#1186) (f3bb1fe4)
+*  ParseLabelFilters throw error (#1181) (72378ff9)
+*  Fix url sharing and line filter migrations (#1176) (7c2ecb77)
+
+## 1.0.11
+
+##### Chores
+
+*  (gh actions) - pin to tag for security (#1173) (a58f29ec)
+*  Bump @grafana/create-plugin configuration to 5.19.1 (#1159) (ae36050c)
+*  Fix e2e test (#1135) (7873d6dd)
+
+##### Documentation Changes
+
+*  Update readme to include discover_log_levels config requirement (#1143) (359e9766)
+
+##### New Features
+
+*  Add critical/fatal log level (#1146) (038a8146)
+*  Add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
+
+##### Bug Fixes
+
+*  Links should use `firstValueFrom` (#1170) (7caf11c8)
+*  Changelog (#1169) (c662e796)
+*  Error being thrown when toggling case sensitivity with empty value (#1153) (156245c9)
+*  Set step as 10s for aggregated metric queries (#1145) (b370c190)
+
+##### Other Changes
+
+*  Remove padding and combine level with fields (#1168) (977a839d)
+*  Make extensions compatibly with different Grafana versions (#1148) (e2c75d29)
+
+## 1.0.10
+
+##### Chores
+
+*  Fix e2e test (#1135) (7873d6dd)
+
+##### Documentation Changes
+
+*  Update readme to include discover_log_levels config requirement (#1143) (359e9766)
+
+##### New Features
+
+*  Add critical/fatal log level (#1146) (038a8146)
+*  Add support for uppercase log level and color warning as a warn (#1137) (4675f4a7)
+
+##### Bug Fixes
+
+*  Error thrown when toggling case sensitivity with an empty value (#1153) (156245c9)
+*  Set step as 10s for aggregated metric queries (#1145) (b370c190)
+
+##### Other Changes
+
+*  Make extensions compatibly with different Grafana versions (#1148) (e2c75d29)
+
+# Changelog
+
 View [releases](https://github.com/grafana/explore-logs/releases/) on GitHub for up-to-date changelog information.
 
 ## 1.0.9

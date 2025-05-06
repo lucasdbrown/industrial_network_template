@@ -12,8 +12,8 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-    # ports:
-    #   - "5000:5000"
+    ports:
+      - "5000:5000"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.2
@@ -27,12 +27,12 @@ services:
     #   - openplc
     stdin_open: true
     tty: true
-    ports:
-      - "502:502"
+    # ports:
+    #   - "502:502"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.3
-    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+#    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   openplc:
     build:
@@ -47,10 +47,11 @@ services:
       - openplc_data:/home
     ports:
       - "8080:8080"
-      - "503:502"
+      - "502:502"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.4
+    # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   mqtt_broker:
     image: eclipse-mosquitto
