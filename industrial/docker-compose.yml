@@ -177,7 +177,7 @@ services:
   #   container_name: rsyslog_server
   #   networks:
   #     utilities_network:
-  #       ipv4_address: 192.168.32.5
+  #       ipv4_address: 192.168.32.7
   #   volumes:
   #     - ./logging/logs:/var/log
 
@@ -193,9 +193,23 @@ services:
       - OPCUA_NAMESPACE_URI=http://example.com/opcua
     networks:
       utilities_network:
-        ipv4_address: 192.168.32.6
+        ipv4_address: 192.168.32.5
 
   # Packaging Enclave Services
+  barcode_scanner:
+    container_name: barcode_scanner
+    cap_add:
+      - NET_ADMIN
+    build:
+      context: ./barcode_scanner
+      dockerfile: DockerFile
+    ports:
+      - "5001:5001"
+    restart: always
+    networks:
+      packaging_network:
+        ipv4_address: 192.168.33.2
+
   rfid_database:
     image: rfidapp/rfid-app-database
     container_name: rfid_database
@@ -228,94 +242,6 @@ services:
     networks:
       packaging_network:
         ipv4_address: 192.168.33.5
-
-  barcode_scanner:
-    container_name: barcode_scanner
-    cap_add:
-      - NET_ADMIN
-    build:
-      context: ./barcode_scanner
-      dockerfile: DockerFile
-    ports:
-      - "5001:5001"
-    restart: always
-    networks:
-      packaging_network:
-        ipv4_address: 192.168.33.6
-
-  # Level 3 Site Operations Services
-  ftp_server:
-    image: delfer/alpine-ftp-server:latest
-    container_name: ftp_server
-    cap_add:
-      - NET_ADMIN
-    environment:
-      USERS: "frp_user|alpine_fun_password123!"
-    networks:
-      site_operations_network:
-        ipv4_address: 192.168.30.2
-    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
-
-  # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
-  historian-db:
-    image: influxdb:latest
-    container_name: historian-db
-    cap_add:
-      - NET_ADMIN
-    env_file:
-      - ./historian.env
-    volumes:
-      - historian_data:/var/lib/influxdb2:rw
-    networks:
-      site_operations_network:
-        ipv4_address: 192.168.30.3
-    ports:
-      - 8087:8086
-    entrypoint: [ "./entrypoint.sh" ]
-    # entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
-
-  historian-client:
-    image: ubuntu:latest
-    stdin_open: true
-    tty: true
-    container_name: historian-client
-    cap_add:
-      - NET_ADMIN
-    depends_on:
-      - historian-db
-    networks:
-      site_operations_network:
-        ipv4_address: 192.168.30.4
-
-  historian-server:
-    build:
-      context: ./site_operations
-      dockerfile: DockerFile
-    container_name: historian-server
-    cap_add:
-      - NET_ADMIN
-    networks:
-      site_operations_network:
-        ipv4_address: 192.168.30.5
-    depends_on:
-      - historian-db
-    ports:
-      - "8001:5000"
-
-  vds:
-    image: dorowu/ubuntu-desktop-lxde-vnc # Prebuilt lightweight Ubuntu Desktop that has 4 virtual desktops
-    container_name: vds
-    cap_add:
-      - NET_ADMIN
-    restart: unless-stopped
-    ports:
-      - "5901:5901" # VNC Access
-      - "8082:80" # Web-based noVNC Access
-    environment:
-      - VNC_PASSWORD=securepassword
-    networks:
-      site_operations_network:
-        ipv4_address: 192.168.30.6
 
 networks:
   assembly_network:

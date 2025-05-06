@@ -12,7 +12,7 @@ services:
       - ./elk-config/kibana:/usr/share/kibana/config
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.16
+        ipv4_address: 192.168.20.8
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
@@ -41,9 +41,9 @@ services:
       - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.8
+        ipv4_address: 192.168.20.7
       site_operations_network:
-        ipv4_address: 192.168.39.7
+        ipv4_address: 192.168.30.7
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.0.0
@@ -59,9 +59,9 @@ services:
       assembly_network:
         ipv4_address: 192.168.31.7
       utilities_network:
-        ipv4_address: 192.168.32.5
+        ipv4_address: 192.168.32.7
       packaging_network:
-        ipv4_address: 192.168.33.7
+        ipv4_address: 192.168.33.6
 
   telegraf_forwarder:
     image: telegraf:latest
@@ -74,7 +74,7 @@ services:
       - ../industrial/historian.env
     networks:
       utilities_network:
-        ipv4_address: 192.168.32.7
+        ipv4_address: 192.168.32.6
 
   grafana:
     container_name: grafana
@@ -83,7 +83,7 @@ services:
       - NET_ADMIN
     networks:
       enterprise_network:
-        ipv4_address: 192.168.10.15
+        ipv4_address: 192.168.10.5
     ports:
       - 3000:3000
     volumes:
