@@ -89,21 +89,7 @@ services:
     depends_on:
       - mqtt_broker
 
-  # zeek:
-  #   image: zeek/zeek:latest
-  #   container_name: zeek_ids
-  #   cap_add:
-  #     - NET_RAW
-  #   network_mode: "host"
-  #   build: 
-  #    context: ./zeek/elastic
-  #    dockerfile: Dockerfile
-  #   networks:
-  #     assembly_network:
-  #       ipv4_address: 192.168.31.4
-  #   # command: zeek -i af_packet::eth0 local
-  #   entrypoint: ["zeek", "-i", "af_packet::ens160", "local" ]
-
+  
   # Utilities Enclave Services
   scadalts:
     image: scadalts/scadalts:latest
@@ -172,15 +158,7 @@ services:
       - "47808:47808/udp" # BACnet
       - "8025:8025" # Flask
 
-  # rsyslog_server:
-  #   image: rsyslog/syslog_appliance_alpine:latest
-  #   container_name: rsyslog_server
-  #   networks:
-  #     utilities_network:
-  #       ipv4_address: 192.168.32.7
-  #   volumes:
-  #     - ./logging/logs:/var/log
-
+  
   opc_ua_server:
     image: open62541/open62541:latest
     container_name: opc_ua_server

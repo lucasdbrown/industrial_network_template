@@ -43,20 +43,6 @@ services:
     networks:
       enterprise_network:
         ipv4_address: 192.168.10.4
-    # dns:
-    #   - 192.168.10.99
-
-    # dns-server:
-    #   image: strm/dnsmasq
-    #   container_name: dns-server
-    #   command: -A /random_enterprise.com/192.168.10.2
-    #   ports:
-    #     - "53:53/udp"  # If needed for host DNS resolution (optional)
-    #   networks:
-    #     enterprise_network:
-    #       ipv4_address: 192.168.10.99
-    #   network_mode: "host"
-    #   restart: unless-stopped
 
 networks:
   enterprise_network:
