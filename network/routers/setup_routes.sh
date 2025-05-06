@@ -13,7 +13,7 @@ case "$HOST" in
     ip route add default via 192.168.1.253
 
     # Addes all the other routes into the network
-    for i in 3 4 5 6 7 8 20 30 39 33 32 31; do
+    for i in 3 4 5 6 7 8 20 30 30 33 32 31; do
       ip route add 192.168.$i.0/24 via 192.168.2.253 || true
     done
     ;;
@@ -54,7 +54,7 @@ case "$HOST" in
   idmz_firewall)
     ip route add default via 192.168.2.254
 
-    for i in 5 6 7 8 20 31 32 33 39; do
+    for i in 5 6 7 8 20 31 32 33 30; do
       ip route add 192.168.$i.0/24 via 192.168.4.254 || true
     done
     ;;
