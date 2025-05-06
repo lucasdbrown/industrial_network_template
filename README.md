@@ -19,7 +19,7 @@ Look through `/docs/scripts.md` for documentation on the scripts in this repo
 - Go to the `docs` folder 
 
 ## Diagram of OT Network
-![Image](Ind_Network_Template_Diagram.drawio.png)
+![Image](Ind_Network_Template.png)
 
 
 ## Guide for how to make your own Industrial Network using this template
