@@ -59,7 +59,7 @@ filebeat.inputs:
 
 # Output to Logstash (change host/IP if needed)
 output.logstash:
-  hosts: ["logstash_idmz:5044"]
+  hosts: ["logstash:5044"]
   ssl.enabled: false
   loadbalance: true
 
