@@ -9,8 +9,6 @@ services:
         ipv4_address: 192.168.10.69
       idmz_network:
         ipv4_address: 192.168.20.69
-      industrial_network:
-        ipv4_address: 192.168.30.69
       assembly_network:
         ipv4_address: 192.168.31.69
       utilities_network:
@@ -18,7 +16,7 @@ services:
       packaging_network:
         ipv4_address: 192.168.33.69
       site_operations_network:
-        ipv4_address: 192.168.39.69
+        ipv4_address: 192.168.30.69
     entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   controller:
@@ -115,7 +113,7 @@ services:
       - NET_ADMIN
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.254
+        ipv4_address: 192.168.30.254
       4_network:
         ipv4_address: 192.168.4.254
       5_network:
@@ -232,14 +230,6 @@ networks:
         - subnet: 192.168.20.0/24
           gateway: 192.168.20.250
 
-  industrial_network:
-    name: industrial_network
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.30.0/24
-          gateway: 192.168.30.250
-
   assembly_network:
     name: assembly_network
     driver: bridge
@@ -269,8 +259,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.39.0/24
-          gateway: 192.168.39.250
+        - subnet: 192.168.30.0/24
+          gateway: 192.168.30.250
 
   1_network:
     driver: bridge

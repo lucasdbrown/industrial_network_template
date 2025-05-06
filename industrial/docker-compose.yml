@@ -253,7 +253,7 @@ services:
       USERS: "frp_user|alpine_fun_password123!"
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.2
+        ipv4_address: 192.168.30.2
     entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network
@@ -268,7 +268,7 @@ services:
       - historian_data:/var/lib/influxdb2:rw
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.3
+        ipv4_address: 192.168.30.3
     ports:
       - 8087:8086
     entrypoint: [ "./entrypoint.sh" ]
@@ -285,7 +285,7 @@ services:
       - historian-db
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.4
+        ipv4_address: 192.168.30.4
 
   historian-server:
     build:
@@ -296,7 +296,7 @@ services:
       - NET_ADMIN
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.5
+        ipv4_address: 192.168.30.5
     depends_on:
       - historian-db
     ports:
@@ -315,11 +315,9 @@ services:
       - VNC_PASSWORD=securepassword
     networks:
       site_operations_network:
-        ipv4_address: 192.168.39.6
+        ipv4_address: 192.168.30.6
 
 networks:
-  industrial_network:
-    external: true
   assembly_network:
     external: true
   utilities_network:
