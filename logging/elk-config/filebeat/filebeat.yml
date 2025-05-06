@@ -1,56 +1,61 @@
 filebeat.inputs:
+   # Enterprise
   - type: log
     enabled: true
     paths:
-      # SCADA-LTS Logs
-      - /var/log/scada-lts/*.log
-      - /var/log/scada-lts/*.txt
-      - /usr/local/tomcat/logs/*.log
-      - /usr/local/tomcat/logs/*.txt
-
-      # NGINX web-app logs (Enterprise)
       - /var/log/nginx/*.log
-      - /logs/web-app/*.log
+    fields:
+      type: enterprise_logs
 
-      # Industrial component logs
-      - /logs/openplc/*.log
-      - /logs/modbus/*.log
-      - /logs/hmi/*.log
-      - /logs/mqtt/*.log
-      - /logs/node-red/*.log
+  # IDMZ
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx_idmz/*.log
+      - /var/log/guacd/*.log
+    fields:
+      type: idmz_logs
 
-      # Database logs (MySQL, Postgres)
-      - /var/log/mysql/*.log
-      - /logs/database/*.log
-      - /var/log/postgresql/*.log
+  # Assembly
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/openplc/*.log
+      - /var/log/modbus/*.log
+      - /var/log/hmi/*.log
+      - /data/logs/*.log
+      - /mosquitto/log/*.log
+    fields:
+      type: assembly_logs
 
-      # Historian logs (InfluxDB)
+  # Utilities
+  - type: log
+    enabled: true
+    paths:
+      - /usr/local/tomcat/logs/*.log # SCADA-LTS
+      - /var/log/bacnet/*.log
+      - /var/log/opcua/*.log
+    fields:
+      type: utilities_logs
+
+  # Packaging
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/rfid/*.log
+      - /var/log/inventory/*.log
+    fields:
+      type: packaging_logs
+
+  # Site Operations
+  - type: log
+    enabled: true
+    paths:
       - /var/log/influxdb/*.log
-      - /logs/historian/*.log
-
-      # File Server and FTP
-      - /logs/ftp_server/*.log
-
-      # OPC-UA and BACnet logs
-      - /logs/opcua/*.log
-      - /logs/bacnet/*.log
-
-      # Virtual Desktop and Remote Desktop
-      - /logs/vds/*.log
-      - /logs/guacd/*.log
-      - /logs/rdg/*.log
-
-      # Firewall logs
-      - /logs/firewall/*.log
-      - /logs/iptables.log
-
-      # IDMZ and Reverse Proxy
-      - /logs/reverse-proxy/*.log
-      - /logs/idmz/*.log
-    multiline.pattern: '^\d{4}-\d{2}-\d{2}'   # Java log timestamps
-    multiline.negate: true
-    multiline.match: after
-    exclude_files: ['\.gz$']
+      - /var/log/ftp/*.log
+      - /var/log/vds/*.log
+    fields:
+      type: site_ops_logs
 
 # Output to Logstash (change host/IP if needed)
 output.logstash:
