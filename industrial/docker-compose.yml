@@ -14,8 +14,8 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-    # ports:
-    #   - "5000:5000"
+    ports:
+      - "5000:5000"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.2
@@ -36,7 +36,7 @@ services:
     networks:
       assembly_network:
         ipv4_address: 192.168.31.3
-    entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
+    # entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   openplc:
     build:
@@ -53,10 +53,11 @@ services:
       - openplc_data:/home
     ports:
       - "8080:8080"
-      - "503:502"
+      - "502:502"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.4
+    # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
 
   mqtt_broker:
     image: eclipse-mosquitto
@@ -89,7 +90,6 @@ services:
     depends_on:
       - mqtt_broker
 
-  
   # Utilities Enclave Services
   scadalts:
     image: scadalts/scadalts:latest
@@ -158,7 +158,6 @@ services:
       - "47808:47808/udp" # BACnet
       - "8025:8025" # Flask
 
-  
   opc_ua_server:
     image: open62541/open62541:latest
     container_name: opc_ua_server
