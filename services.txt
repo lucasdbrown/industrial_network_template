@@ -28,15 +28,10 @@ scadalts
 database
 bacnet_server
 opc_ua_server
+barcode_scanner
 rfid_database
 inventory_db
 inventory_client
-barcode_scanner
-ftp_server
-historian-db
-historian-client
-historian-server
-vds
 ./logging/docker-compose.yml
 kibana
 elasticsearch

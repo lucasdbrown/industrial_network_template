@@ -15,7 +15,7 @@ services:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
     ports:
-      - "5000:5000"
+      - "5005:5000"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.2
