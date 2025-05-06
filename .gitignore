@@ -15,3 +15,5 @@ industrial/tomcat_log
 
 logging/grafana/*.db
 logging/grafana/plugins
+
+industrial/OpenPLC_v2/dnp3/java/bindings/target/

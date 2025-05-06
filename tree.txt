@@ -1,0 +1,418 @@
+C:.
+|   .gitignore
+|   file_structure.txt
+|   get_services.sh
+|   Ind_Network_Template_Diagram.drawio.png
+|   init.sh
+|   README.md
+|   services.txt
+|   stop.sh
+|   testing.sh
+|   tree.txt
+|   
++---docs
+|   |   competition_setup.md
+|   |   docker.md
+|   |   network.md
+|   |   scripts.md
+|   |   
+|   +---enterprise
+|   |       enterprise.md
+|   |       
+|   +---firewall
+|   |       firewall.md
+|   |       
+|   +---idmz
+|   |       guacamole.md
+|   |       idmz.md
+|   |       nginx_reverse_proxy.md
+|   |       
+|   +---industrial
+|   |       bacnet_server.md
+|   |       industrial.md
+|   |       openplc.md
+|   |       scada.md
+|   |       
+|   +---logging
+|   |       logging.md
+|   |       testing_logs.md
+|   |       
+|   \---network
+|           routers.md
+|           
++---enterprise
+|   |   docker-compose.yml
+|   |   nginx.conf
+|   |   
+|   \---html
+|           index.html
+|           
++---firewall
+|   |   docker-compose.yml
+|   |   DockerFile
+|   |   rules.sh
+|   |   
+|   \---firewall
+|       \---rules.sh
++---idmz
+|   |   docker-compose.yml
+|   |   
+|   \---nginx
+|           nginx.conf
+|           
++---industrial
+|   |   docker-compose.yml
+|   |   entrypoint.sh
+|   |   historian.env
+|   |   
+|   +---bacnet_server
+|   |       app.py
+|   |       DockerFile
+|   |       requirements.txt
+|   |       
+|   +---barcode_scanner
+|   |       app.py
+|   |       DockerFile
+|   |       requirements.txt
+|   |       
+|   |           
+|   +---industrial
+|   |   \---scada
+|   |       +---base_scada.json
+|   |       \---logback.xml
+|   +---industrial_component
+|   |   +---hmi
+|   |   |   |   app.py
+|   |   |   |   Dockerfile
+|   |   |   |   docker_entrypoint.sh
+|   |   |   |   gunicorn.sh
+|   |   |   |   requirements.txt
+|   |   |   |   
+|   |   |   +---static
+|   |   |   |   +---css
+|   |   |   |   |       styles.css
+|   |   |   |   |       
+|   |   |   |   +---imgs
+|   |   |   |   |       siemens_logo.png
+|   |   |   |   |       tank.jpeg
+|   |   |   |   |       user-avatar-with-check-mark.png
+|   |   |   |   |       
+|   |   |   |   \---js
+|   |   |   |           main.js
+|   |   |   |           
+|   |   |   \---templates
+|   |   |           index.html
+|   |   |           
+|   |   +---openplc
+|   |   |       Dockerfile
+|   |   |       
+|   |   +---openplc_program
+|   |   +---openplc_test
+|   |   |       Dockerfile
+|   |   |       
+|   |   \---tcp_modbus
+|   |           Dockerfile
+|   |           requirements.txt
+|   |           tcp_modbus.py
+|   |           
+|   +---mqtt
+|   |   +---config
+|   |   |       mosquitto.conf
+|   |   |       
+|   |   \---log
+|   +---node-red
+|   |   \---data
+|   |       |   .config.nodes.json
+|   |       |   .config.runtime.json
+|   |       |   .config.runtime.json.backup
+|   |       |   .config.users.json
+|   |       |   .config.users.json.backup
+|   |       |   package.json
+|   |       |   settings.js
+|   |       |   
+|   |       +---lib
+|   |       |   \---flows
+|   |       \---node_modules
+|   |           
+|   +---scada
+|   |       base_scada_data.json
+|   |       logback.xml
+|   |       README.md
+|   |       
+|   +---simulated_components
+|   |       DockerFile
+|   |       
+|   +---site_operations
+|   |       automation_server.py
+|   |       DockerFile
+|   |       requirements.txt
+|   |       telegraf.conf
+|   |       
+|   \---tomcat_log
+|           api.log
+|           catalina.2025-03-21.log
+|           catalina.2025-03-22.log
+|           catalina.2025-03-25.log
+|           catalina.2025-03-26.log
+|           catalina.2025-04-01.log
+|           catalina.2025-04-02.log
+|           catalina.2025-04-05.log
+|           catalina.2025-04-06.log
+|           catalina.2025-04-07.log
+|           catalina.2025-04-09.log
+|           catalina.2025-04-10.log
+|           catalina.2025-04-16.log
+|           dao.log
+|           flyway.log
+|           history.log
+|           host-manager.2025-03-21.log
+|           host-manager.2025-03-22.log
+|           host-manager.2025-03-25.log
+|           host-manager.2025-03-26.log
+|           host-manager.2025-04-01.log
+|           host-manager.2025-04-02.log
+|           host-manager.2025-04-05.log
+|           host-manager.2025-04-06.log
+|           host-manager.2025-04-09.log
+|           host-manager.2025-04-10.log
+|           host-manager.2025-04-16.log
+|           localhost.2025-03-21.log
+|           localhost.2025-03-22.log
+|           localhost.2025-03-25.log
+|           localhost.2025-03-26.log
+|           localhost.2025-04-01.log
+|           localhost.2025-04-02.log
+|           localhost.2025-04-05.log
+|           localhost.2025-04-06.log
+|           localhost.2025-04-07.log
+|           localhost.2025-04-09.log
+|           localhost.2025-04-10.log
+|           localhost.2025-04-16.log
+|           localhost_access_log.2025-03-21.txt
+|           localhost_access_log.2025-03-22.txt
+|           localhost_access_log.2025-03-25.txt
+|           localhost_access_log.2025-03-26.txt
+|           localhost_access_log.2025-04-01.txt
+|           localhost_access_log.2025-04-02.txt
+|           localhost_access_log.2025-04-05.txt
+|           localhost_access_log.2025-04-06.txt
+|           localhost_access_log.2025-04-09.txt
+|           localhost_access_log.2025-04-10.txt
+|           localhost_access_log.2025-04-16.txt
+|           manager.2025-03-21.log
+|           manager.2025-03-22.log
+|           manager.2025-03-25.log
+|           manager.2025-03-26.log
+|           manager.2025-04-01.log
+|           manager.2025-04-02.log
+|           manager.2025-04-05.log
+|           manager.2025-04-06.log
+|           manager.2025-04-09.log
+|           manager.2025-04-10.log
+|           manager.2025-04-16.log
+|           mango.log
+|           modbus.log
+|           scadaLTSDAO.log
+|           scripts.log
+|           viehierarchyservicelogfile.log
+|           
++---logging
+|   |   docker-compose.yml
+|   |   
+|   +---elk-config
+|   |   +---elasticsearch
+|   |   |   \---modules.d
+|   |   |           elasticsearch.yml
+|   |   |           
+|   |   +---filebeat
+|   |   |       filebeat.yml
+|   |   |       
+|   |   +---kibana
+|   |   |   |   kibana.yml
+|   |   |   |   saved_objects.ndjson
+|   |   |   |   
+|   |   |   \---dashboards
+|   |   |           enterprise_dashboard.ndjson
+|   |   |           idmz_dashboard.ndjson
+|   |   |           industrial_dashboard.ndjson
+|   |   |           
+|   |   \---logstash
+|   |           logstash.conf
+|   |           logstash.yml
+|   |           
+|   +---grafana
+|   |   |   grafana.db
+|   |   |   grafana.ini
+|   |   |   
+|   |   +---csv
+|   |   +---dashboards
+|   |   |       scada_dashboard.json
+|   |   |       
+|   |   +---pdf
+|   |   +---plugins
+|   |   |   +---grafana-exploretraces-app
+|   |   |   |   |   142.js
+|   |   |   |   |   142.js.map
+|   |   |   |   |   327.js
+|   |   |   |   |   327.js.map
+|   |   |   |   |   389.js
+|   |   |   |   |   389.js.map
+|   |   |   |   |   67.js
+|   |   |   |   |   67.js.map
+|   |   |   |   |   746.js
+|   |   |   |   |   746.js.LICENSE.txt
+|   |   |   |   |   746.js.map
+|   |   |   |   |   CHANGELOG.md
+|   |   |   |   |   LICENSE
+|   |   |   |   |   MANIFEST.txt
+|   |   |   |   |   module.js
+|   |   |   |   |   module.js.map
+|   |   |   |   |   plugin.json
+|   |   |   |   |   README.md
+|   |   |   |   |   
+|   |   |   |   +---components
+|   |   |   |   |   \---states
+|   |   |   |   |       \---EmptyState
+|   |   |   |   |           \---img
+|   |   |   |   |                   grot-404-dark.svg
+|   |   |   |   |                   grot-404-light.svg
+|   |   |   |   |                   
+|   |   |   |   +---img
+|   |   |   |   |       1382cadfeb81ccdaa67d.svg
+|   |   |   |   |       944c737f589d02ecf603.svg
+|   |   |   |   |       e79edcfbe2068fae2364.svg
+|   |   |   |   |       errors-metric-flow.png
+|   |   |   |   |       errors-root-cause.png
+|   |   |   |   |       histogram-breakdown.png
+|   |   |   |   |       logo.svg
+|   |   |   |   |       
+|   |   |   |   \---utils
+|   |   |   |       \---trace-merge
+|   |   |   |           \---test-responses
+|   |   |   |                   service-struct.json
+|   |   |   |                   
+|   |   |   +---grafana-lokiexplore-app
+|   |   |   |   |   105.js
+|   |   |   |   |   105.js.LICENSE.txt
+|   |   |   |   |   105.js.map
+|   |   |   |   |   1759fd27b2c9f73dea05.wasm
+|   |   |   |   |   220.js
+|   |   |   |   |   220.js.map
+|   |   |   |   |   543.js
+|   |   |   |   |   543.js.map
+|   |   |   |   |   599.js
+|   |   |   |   |   599.js.map
+|   |   |   |   |   631.js
+|   |   |   |   |   631.js.map
+|   |   |   |   |   649058283f564041551d.wasm
+|   |   |   |   |   747.js
+|   |   |   |   |   747.js.map
+|   |   |   |   |   854.js
+|   |   |   |   |   854.js.map
+|   |   |   |   |   944.js
+|   |   |   |   |   944.js.map
+|   |   |   |   |   CHANGELOG.md
+|   |   |   |   |   LICENSE
+|   |   |   |   |   MANIFEST.txt
+|   |   |   |   |   module.js
+|   |   |   |   |   module.js.map
+|   |   |   |   |   plugin.json
+|   |   |   |   |   README.md
+|   |   |   |   |   
+|   |   |   |   \---img
+|   |   |   |           3d96a93cfcb32df74eef.svg
+|   |   |   |           drilldown-features.png
+|   |   |   |           explore-logs-features.jpeg
+|   |   |   |           fields.png
+|   |   |   |           grot_err.svg
+|   |   |   |           grot_err_light.svg
+|   |   |   |           grot_loki.svg
+|   |   |   |           logo.svg
+|   |   |   |           patterns.png
+|   |   |   |           service_logs.jpg
+|   |   |   |           table.png
+|   |   |   |           
+|   |   |   \---grafana-pyroscope-app
+|   |   |       |   944c737f589d02ecf603.svg
+|   |   |       |   CHANGELOG.md
+|   |   |       |   e6c722427cfa8715e19d.svg
+|   |   |       |   e79edcfbe2068fae2364.svg
+|   |   |       |   LICENSE
+|   |   |       |   MANIFEST.txt
+|   |   |       |   module.js
+|   |   |       |   module.js.LICENSE.txt
+|   |   |       |   module.js.map
+|   |   |       |   plugin.json
+|   |   |       |   README.md
+|   |   |       |   
+|   |   |       +---img
+|   |   |       |       58f0b0e1cfa063e4b662.png
+|   |   |       |       61b4cf746a6f58780f27.png
+|   |   |       |       8cdf4d2e2df8326311ab.gif
+|   |   |       |       9c9cdd5175734d579007.png
+|   |   |       |       bafee50693eb02088442.png
+|   |   |       |       decrease-latency.png
+|   |   |       |       diff-view-how-to.gif
+|   |   |       |       hero-image.png
+|   |   |       |       logo.svg
+|   |   |       |       reduce-costs.png
+|   |   |       |       resolve-incidents.png
+|   |   |       |       
+|   |   |       +---pages
+|   |   |       |   \---ProfilesExplorerView
+|   |   |       |       \---components
+|   |   |       |           \---SceneByVariableRepeaterGrid
+|   |   |       |               \---components
+|   |   |       |                   \---SceneEmptyState
+|   |   |       |                       \---ui
+|   |   |       |                           \---img
+|   |   |       |                                   grot-404-dark.svg
+|   |   |       |                                   grot-404-light.svg
+|   |   |       |                                   
+|   |   |       \---shared
+|   |   |           \---infrastructure
+|   |   |               \---profile-metrics
+|   |   |                       profile-metrics.json
+|   |   |                       
+|   |   +---png
+|   |   \---provisioning
+|   |       +---dashboards
+|   |       |       default.yml
+|   |       |       
+|   |       \---datasources
+|   |               influxdb.yml
+|   |               
+|   +---logs
+|   |   +---iptables
+|   |   \---nginx
+|   |           access.log
+|   |           error.log
+|   |           global_error.log
+|   |           http_error.log
+|   |           
+|   +---telegraf
+|   |       new-telegraf.conf
+|   |       telegraf.conf
+|   |       
+|   \---tomcat_log
+\---network
+    |   docker-compose.yml
+    |   
+    +---routers
+    |       assembly_switch.conf
+    |       daemons
+    |       Dockerfile
+    |       enterprise_router.conf
+    |       idmz_firewall.conf
+    |       idmz_router.conf
+    |       industrial_core_switch.conf
+    |       ot_firewall.conf
+    |       packaging_switch.conf
+    |       setup_routes.sh
+    |       start_frr.sh
+    |       utilities_switch.conf
+    |       
+    \---routing-controller
+            controller.sh
+            Dockerfile
+            

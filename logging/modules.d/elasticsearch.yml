@@ -1,5 +1,0 @@
-- module: elasticsearch
-  server:
-    enabled: true
-    var.paths:
-      - /usr/share/elasticsearch/logs/*.log

@@ -1,0 +1,75 @@
+filebeat.inputs:
+   # Enterprise
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/*.log
+    fields:
+      type: enterprise_logs
+
+  # IDMZ
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx_idmz/*.log
+      - /var/log/guacd/*.log
+    fields:
+      type: idmz_logs
+
+  # Assembly
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/openplc/*.log
+      - /var/log/modbus/*.log
+      - /var/log/hmi/*.log
+      - /data/logs/*.log
+      - /mosquitto/log/*.log
+    fields:
+      type: assembly_logs
+
+  # Utilities
+  - type: log
+    enabled: true
+    paths:
+      - /usr/local/tomcat/logs/*.log # SCADA-LTS
+      - /var/log/bacnet/*.log
+      - /var/log/opcua/*.log
+    fields:
+      type: utilities_logs
+
+  # Packaging
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/rfid/*.log
+      - /var/log/inventory/*.log
+    fields:
+      type: packaging_logs
+
+  # Site Operations
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/influxdb/*.log
+      - /var/log/ftp/*.log
+      - /var/log/vds/*.log
+    fields:
+      type: site_ops_logs
+
+# Output to Logstash (change host/IP if needed)
+output.logstash:
+  hosts: ["logstash:5044"]
+  ssl.enabled: false
+  loadbalance: true
+
+# Enriching logs with container and host metadata
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+monitoring.enabled: true
+monitoring.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+

@@ -1,0 +1,7 @@
+server.name: kibana
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+# xpack.monitoring.ui.container.elasticsearch.enabled: true
+xpack.encryptedSavedObjects.encryptionKey: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+xpack.reporting.encryptionKey: "cccccccccccccccccccccccccccccccc"
+xpack.reporting.kibanaServer.hostname: "localhost"  
