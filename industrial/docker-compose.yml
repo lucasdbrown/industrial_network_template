@@ -97,12 +97,12 @@ services:
       - NET_ADMIN
     environment:
       - CATALINA_OPTS=-Xmx2G -Xms2G
-      - JAVA_OPTS=-Dlogback.configurationFile=/usr/local/tomcat/lib/logback.xml
+      - JAVA_OPTS=-Dlogback.configurationFile=/usr/local/tomcat/lib/logback.xml 
     ports:
-      - "0.0.0.0:8000:8080"
+      - "0.0.0.0:8082:8080"
     depends_on:
       - database
-    expose: [ "8080", "8000" ]
+    expose: [ "8080" ]
     volumes:
       - ./tomcat_log:/usr/local/tomcat/logs:rw
       - ./industrial/scada/logback.xml:/usr/local/tomcat/lib/logback.xml:ro

@@ -1,10 +1,5 @@
-# Installation of SCADA 
-===========================================
+# SCADA-LTS
 
-``` bash 
-cd scada
-
-#DOCKER_COMPOSE UP
-sudo docker-compose up -d
-
+```bash
+http://localhost:8000/Scada-LTS/
 ```
