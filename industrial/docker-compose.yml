@@ -53,7 +53,7 @@ services:
       - openplc_data:/home
     ports:
       - "8080:8080"
-      - "502:502"
+      - "503:502"
     networks:
       assembly_network:
         ipv4_address: 192.168.31.4
