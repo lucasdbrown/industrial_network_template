@@ -69,10 +69,6 @@ cp -f ./core/core_builders/dnp3_disabled/*.* ./core/core_builders/
 cd core
 rm -f ./hardware_layer.cpp
 rm -f ../build_core.sh
-# echo The OpenPLC needs a driver to be able to control physical or virtual hardware.
-# echo Please select the driver you would like to use:
-# OPTIONS="Blank Modbus Fischertechnik RaspberryPi UniPi PiXtend PiXtend_2S Arduino ESP8266 Arduino+RaspberryPi Simulink "
-# select opt in $OPTIONS; do
 	# if [ "$opt" = "Blank" ]; then
 		# cp ./hardware_layers/blank.cpp ./hardware_layer.cpp
 		# cp ./core_builders/build_normal.sh ../build_core.sh
