@@ -105,9 +105,9 @@ services:
     expose: [ "8080" ]
     volumes:
       - ./tomcat_log:/usr/local/tomcat/logs:rw
-      - ./industrial/scada/logback.xml:/usr/local/tomcat/lib/logback.xml:ro
+      - ./scada/logback.xml:/usr/local/tomcat/lib/logback.xml:rw
       - scada_databases:/var/lib/mysql
-      - ./industrial/scada/base_scada.json:/usr/local/tomcat/conf/base_scada.json:ro
+      - ./scada/base_scada_data.json:/usr/local/tomcat/conf/base_scada_data.json:rw
     links:
       - database:database
     command:
@@ -136,9 +136,9 @@ services:
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=scadalts
     expose: [ "3307" ]
-    volumes:
-      - ./db_data:/var/lib/mysql:rw
-      - ./db_conf:/etc/mysql:ro
+    # volumes:
+    #   - ./db_data:/var/lib/mysql:rw
+    #   - ./db_conf:/etc/mysql:ro
     command: --log_bin_trust_function_creators=1
     networks:
       utilities_network:
