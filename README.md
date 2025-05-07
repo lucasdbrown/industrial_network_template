@@ -1,6 +1,9 @@
 # Industrial Virtualized Network Template
 Simulated Industrial Network Template for OT Security Competitions or Projects
 
+<img src="template_logo.png" alt="Image" width="600" height="500">
+
+
 ## Setting up your own Industrial Network
 - git clone the repo and then remove the `.git` directory with `rm -rf .git`
 - Then do the process of starting the new repo:
