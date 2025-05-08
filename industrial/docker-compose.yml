@@ -147,7 +147,7 @@ services:
   bacnet_server:
     build:
       context: ./bacnet_server
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     container_name: bacnet_server
     cap_add:
       - NET_ADMIN
@@ -179,7 +179,7 @@ services:
       - NET_ADMIN
     build:
       context: ./barcode_scanner
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
     restart: always
