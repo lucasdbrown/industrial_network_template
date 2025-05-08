@@ -1,38 +1,37 @@
 #!/usr/bin/env bash
 
 # Path to the file containing the compose files and container names
-compose_list_file="services.txt"
+services_file="services.txt"
 
 # Global associative array to map compose files to services
 declare -A service_to_compose
 complete_list=()
 compose_list=()
+service_list=()
 
 # Function to read the file and build the map
 build_compose_map() {
-    local current_file=""
+    local compose_file=""
     while IFS= read -r line; do
         line=$(echo "$line" | xargs)
+
         # Check if the line starts with "./" (indicating a compose file)
         if [[ $line == ./* ]]; then
             line="${line:2}"
             complete_list+=("$line")
-
-            current_file=("$line")
-            service_to_compose["$line"]="$line"
+            compose_file=("$line")
             compose_list+=("$line")
 
-        elif [[ -n $current_file && -n $line ]]; then
-
+        else
             complete_list+=("$line")
-
-            service_to_compose["$line"]="$current_file"
+            service_list+=("$line")
+            service_to_compose["$line"]="$compose_file"
         fi
-    done < "$compose_list_file"
+    done < "$services_file"
 }
 
 start_containers() {
-
+    # network option to only spin up god_debug
     for arg in "$@"; do
         if [[ ${compose_list[@]} =~ $arg ]] then
             docker compose -f "$arg" build --no-cache
@@ -46,10 +45,88 @@ start_containers() {
 
 
 stop_containers() {
-    docker stop $(docker ps -q)
+    local stop=1
+    local down=0
+
+    local stop_list=()
+    local down_list=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -s)
+                stop=1
+                down=0
+
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    stop_list+=("$1")
+                    shift
+                done
+                ;;
+
+            -d)
+                stop=0
+                down=1
+
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    down_list+=("$1")
+                    shift
+                done
+                ;;
+
+            -h)
+                echo "Usage: stop_containers [-s container1 container2 ...] [-d container1 container2 ...]"
+                echo "  -s       Stop specified containers. If no containers are provided, stops all running containers."
+                echo "  -d       Compose down specified containers. If no containers are provided, composes down all services."
+                echo "  -h       Show this help message."
+                echo
+                echo "Examples:"
+                echo "  stop_containers -s web-app db-server      # Stops web-app and db-server containers."
+                echo "  stop_containers -d                        # Composes down all services."
+                echo "  stop_containers -s web-app -d db-server    # Stops web-app and composes down db-server."
+                ;;
+
+            *)
+                break
+                ;;
+        esac
+    done
+
+
+    echo "Stop: $stop"
+    echo "Down: $down"
+    echo $stop_list
+    echo $down_list
+
+
+
+    # Actual Stop vs Down Logic
+    if (($stop)); then
+        if [[ ${#stop_list[@]} -eq 0 ]]; then
+            docker stop $(docker ps -q)
+        else
+            for arg in "${stop_list[@]}"; do
+                docker stop $arg
+            done
+        fi 
+    elif (($down)); then
+        if [[ ${#down_list[@]} -eq 0 ]]; then
+            for arg in "${compose_list[@]}"; do
+                docker compose -f $arg down
+            done
+        else
+            for arg in "${down_list[@]}"; do
+                docker compose -f $arg down
+            done
+        fi
+    else
+        echo "Something Broke"
+    fi
 }
 
-_start_containers() {
+# Autocomplete Function
+_containers() {
     local cur
     cur="${COMP_WORDS[COMP_CWORD]}"
 
@@ -60,6 +137,7 @@ _start_containers() {
 # Build the map when the script is sourced
 build_compose_map
 
-# Set up autocompletion for start_containers
-complete -F _start_containers start_containers
+# Set up autocompletion 
+complete -F _containers start_containers
+complete -F _containers stop_containers
 
