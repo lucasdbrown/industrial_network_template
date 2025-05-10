@@ -96,6 +96,8 @@ start() {
                 ;;
 
             *)
+                echo "This is the * case $1"
+                shift
                 break
                 ;;
 
@@ -119,33 +121,54 @@ start() {
 
 
 stop() {
-    local stop=1
-    local down=0
-
     local stop_list=()
     local down_list=()
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -s)
-                stop=1
-                down=0
-
                 shift
                 while [[ $# -gt 0 && $1 != -* ]]; do
                     stop_list+=("$1")
                     shift
                 done
+                if [[ ${#stop_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        echo "docker compose -f $arg stop"
+                    done
+                    break
+                fi  
+                for arg in $stop_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        # docker compose -f "$arg" up -d
+                        echo "docker compose -f $arg stop"
+                    else
+                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+                        echo "docker compose -f ${service_to_compose["$arg"]} stop $arg"
+                    fi
+                done
                 ;;
 
             -d)
-                stop=0
-                down=1
-
                 shift
                 while [[ $# -gt 0 && $1 != -* ]]; do
                     down_list+=("$1")
                     shift
+                done
+                if [[ ${#down_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        echo "docker compose -f $arg down"
+                    done
+                    break
+                fi  
+                for arg in $down_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        # docker compose -f "$arg" up -d
+                        echo "docker compose -f $arg down" 
+                    else
+                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+                        echo "docker compose -f ${service_to_compose["$arg"]} down $arg"
+                    fi
                 done
                 ;;
 
@@ -166,37 +189,6 @@ stop() {
                 ;;
         esac
     done
-
-
-    echo "Stop: $stop"
-    echo "Down: $down"
-    echo $stop_list
-    echo $down_list
-
-
-
-    # Actual Stop vs Down Logic
-    if (($stop)); then
-        if [[ ${#stop_list[@]} -eq 0 ]]; then
-            docker stop $(docker ps -q)
-        else
-            for arg in "${stop_list[@]}"; do
-                docker stop $arg
-            done
-        fi 
-    elif (($down)); then
-        if [[ ${#down_list[@]} -eq 0 ]]; then
-            for arg in "${compose_list[@]}"; do
-                docker compose -f $arg down
-            done
-        else
-            for arg in "${down_list[@]}"; do
-                docker compose -f $arg down
-            done
-        fi
-    else
-        echo "Something Broke"
-    fi
 }
 
 # Autocomplete Function
