@@ -30,6 +30,7 @@ build_compose_map() {
     done < "$services_file"
 }
 
+#TODO: Add default behavior if no flags are put in just to compose up
 start() {
     local build_list=()
     local start_list=()
@@ -94,6 +95,9 @@ start() {
                 done
                 break
                 ;;
+            -h)
+                shift
+                ;;
 
             *)
                 echo "This is the * case $1"
@@ -119,7 +123,7 @@ start() {
     done
 }
 
-
+#TODO: Add tracker for running docker containers so stop and down can work better
 stop() {
     local stop_list=()
     local down_list=()
@@ -189,7 +193,10 @@ stop() {
                 ;;
         esac
     done
+    for 
 }
+
+#TODO: Add a grouping feat that allows you to create a group and then call that name instead of all the names inside of it. Would be done with a dict using formatting for dict of list. Then save this to a file so others can use the grouping.
 
 # Autocomplete Function
 _containers() {
