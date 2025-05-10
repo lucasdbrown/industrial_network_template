@@ -30,21 +30,95 @@ build_compose_map() {
     done < "$services_file"
 }
 
-start_containers() {
+start() {
+    local build_list=()
+    local start_list=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -b)
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    build_list+=("$1")
+                    shift
+                done
+
+                if [[ ${#build_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        echo "docker compose -f $arg build --no-cache"
+                        echo "docker compose -f $arg up -d"
+                    done
+                    break
+                fi  
+                for arg in $build_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        # docker compose -f "$arg" build --no-cache
+                        # docker compose -f "$arg" up -d
+                        echo "docker compose -f $arg build --no-cache"
+                        echo "docker compose -f $arg up -d"
+                    else
+                        # docker compose -f "${service_to_compose["$arg"]}" build "$arg" --no-cache
+                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+                        echo "docker compose -f ${service_to_compose["$arg"]} build $arg --no-cache"
+                        echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
+                    fi
+                done
+                ;;
+            -u)
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    start_list+=("$1")
+                    shift
+                done
+
+                if [[ ${#start_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        echo "docker compose -f $arg up -d"
+                    done
+                    break
+                fi  
+                for arg in $start_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        # docker compose -f "$arg" up -d
+                        echo "docker compose -f $arg up -d"
+                    else
+                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+                        echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
+                    fi
+                done
+                ;;
+            -a)
+                shift
+                for arg in $compose_list; do
+                    # echo "docker compose -f $arg build --no-cache"
+                    echo "docker compose -f $arg up -d"
+                done
+                break
+                ;;
+
+            *)
+                break
+                ;;
+
+        esac
+    done
     # network option to only spin up god_debug
     for arg in "$@"; do
         if [[ ${compose_list[@]} =~ $arg ]] then
-            docker compose -f "$arg" build --no-cache
-            docker compose -f "$arg" up -d
+            # docker compose -f "$arg" build --no-cache
+            # docker compose -f "$arg" up -d
+            echo "docker compose -f $arg build --no-cache"
+            echo "docker compose -f $arg up -d"
         else
-            docker compose -f "${service_to_compose["$arg"]}" build "$arg" --no-cache
-            docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+            # docker compose -f "${service_to_compose["$arg"]}" build "$arg" --no-cache
+            # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
+            echo "docker compose -f ${service_to_compose["$arg"]} build $arg --no-cache"
+            echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
         fi
     done
 }
 
 
-stop_containers() {
+stop() {
     local stop=1
     local down=0
 
@@ -138,6 +212,6 @@ _containers() {
 build_compose_map
 
 # Set up autocompletion 
-complete -F _containers start_containers
-complete -F _containers stop_containers
+complete -F _containers start
+complete -F _containers stop
 
