@@ -30,10 +30,10 @@ build_compose_map() {
     done < "$services_file"
 }
 
-#TODO: Add default behavior if no flags are put in just to compose up
 start() {
     local build_list=()
     local start_list=()
+docker compose -f network/docker-compose.yml up -d god_debug
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -b)
@@ -45,22 +45,18 @@ start() {
 
                 if [[ ${#build_list[@]} -eq 0 ]]; then
                     for arg in $compose_list; do
-                        echo "docker compose -f $arg build --no-cache"
-                        echo "docker compose -f $arg up -d"
+                        docker compose -f $arg build --no-cache
+                        docker compose -f $arg up -d
                     done
                     break
                 fi  
                 for arg in $build_list; do
                     if [[ ${compose_list[@]} =~ $arg ]] then
-                        # docker compose -f "$arg" build --no-cache
-                        # docker compose -f "$arg" up -d
-                        echo "docker compose -f $arg build --no-cache"
-                        echo "docker compose -f $arg up -d"
+                        docker compose -f $arg build --no-cache
+                        docker compose -f $arg up -d
                     else
-                        # docker compose -f "${service_to_compose["$arg"]}" build "$arg" --no-cache
-                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
-                        echo "docker compose -f ${service_to_compose["$arg"]} build $arg --no-cache"
-                        echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
+                        docker compose -f ${service_to_compose["$arg"]} build $arg --no-cache
+                        docker compose -f ${service_to_compose["$arg"]} up -d $arg
                     fi
                 done
                 ;;
@@ -73,30 +69,39 @@ start() {
 
                 if [[ ${#start_list[@]} -eq 0 ]]; then
                     for arg in $compose_list; do
-                        echo "docker compose -f $arg up -d"
+                        docker compose -f $arg up -d
                     done
                     break
                 fi  
                 for arg in $start_list; do
                     if [[ ${compose_list[@]} =~ $arg ]] then
                         # docker compose -f "$arg" up -d
-                        echo "docker compose -f $arg up -d"
+                        docker compose -f $arg up -d
                     else
                         # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
-                        echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
+                        docker compose -f ${service_to_compose["$arg"]} up -d $arg
                     fi
                 done
                 ;;
-            -a)
-                shift
-                for arg in $compose_list; do
-                    # echo "docker compose -f $arg build --no-cache"
-                    echo "docker compose -f $arg up -d"
-                done
-                break
-                ;;
             -h)
                 shift
+                echo "Usage: start [OPTIONS] [SERVICES...]"
+                echo ""
+                echo "Options:"
+                echo "  -b    Build specified services or all services if none are provided."
+                echo "        Usage: start -b [service1] [service2] ..."
+                echo "        If no services are specified, builds all services listed in the compose files."
+                echo ""
+                echo "  -u    Start specified services or all services if none are provided."
+                echo "        Usage: start -u [service1] [service2] ..."
+                echo "        If no services are specified, starts all services listed in the compose files."
+                echo ""
+                echo "  -h    Display this help message."
+                echo ""
+                echo "Examples:"
+                echo "  start -b service1 service2    Build and start the specified services."
+                echo "  start -u service1 service2    Start the specified services without rebuilding."
+                echo "  start -h                      Display this help message."
                 ;;
 
             *)
@@ -107,23 +112,8 @@ start() {
 
         esac
     done
-    # network option to only spin up god_debug
-    for arg in "$@"; do
-        if [[ ${compose_list[@]} =~ $arg ]] then
-            # docker compose -f "$arg" build --no-cache
-            # docker compose -f "$arg" up -d
-            echo "docker compose -f $arg build --no-cache"
-            echo "docker compose -f $arg up -d"
-        else
-            # docker compose -f "${service_to_compose["$arg"]}" build "$arg" --no-cache
-            # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
-            echo "docker compose -f ${service_to_compose["$arg"]} build $arg --no-cache"
-            echo "docker compose -f ${service_to_compose["$arg"]} up -d $arg"
-        fi
-    done
 }
 
-#TODO: Add tracker for running docker containers so stop and down can work better
 stop() {
     local stop_list=()
     local down_list=()
@@ -138,17 +128,15 @@ stop() {
                 done
                 if [[ ${#stop_list[@]} -eq 0 ]]; then
                     for arg in $compose_list; do
-                        echo "docker compose -f $arg stop"
+                        docker compose -f $arg stop
                     done
                     break
                 fi  
                 for arg in $stop_list; do
                     if [[ ${compose_list[@]} =~ $arg ]] then
-                        # docker compose -f "$arg" up -d
-                        echo "docker compose -f $arg stop"
+                        docker compose -f $arg stop
                     else
-                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
-                        echo "docker compose -f ${service_to_compose["$arg"]} stop $arg"
+                        docker compose -f ${service_to_compose["$arg"]} stop $arg
                     fi
                 done
                 ;;
@@ -161,17 +149,15 @@ stop() {
                 done
                 if [[ ${#down_list[@]} -eq 0 ]]; then
                     for arg in $compose_list; do
-                        echo "docker compose -f $arg down"
+                        docker compose -f $arg down
                     done
                     break
                 fi  
                 for arg in $down_list; do
                     if [[ ${compose_list[@]} =~ $arg ]] then
-                        # docker compose -f "$arg" up -d
-                        echo "docker compose -f $arg down" 
+                        docker compose -f $arg down
                     else
-                        # docker compose -f "${service_to_compose["$arg"]}" up -d "$arg"
-                        echo "docker compose -f ${service_to_compose["$arg"]} down $arg"
+                        docker compose -f ${service_to_compose["$arg"]} down $arg
                     fi
                 done
                 ;;
@@ -193,7 +179,6 @@ stop() {
                 ;;
         esac
     done
-    for 
 }
 
 #TODO: Add a grouping feat that allows you to create a group and then call that name instead of all the names inside of it. Would be done with a dict using formatting for dict of list. Then save this to a file so others can use the grouping.
@@ -209,6 +194,14 @@ _containers() {
 
 # Build the map when the script is sourced
 build_compose_map
+
+# TODO: Get impliment this to allow all you to run the script from anywhere
+
+# SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# # Access a file relative to the script location
+# config_file="$SCRIPT_DIR/config.txt"
+# echo "Using config file at: $config_file"
+
 
 # Set up autocompletion 
 complete -F _containers start
