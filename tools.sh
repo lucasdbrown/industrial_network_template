@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# Path to the file containing the compose files and container names
-services_file="services.txt"
-
-# Global associative array to map compose files to services
-declare -A service_to_compose
-complete_list=()
-compose_list=()
-service_list=()
-
 # Function to read the file and build the map
 build_compose_map() {
     local compose_file=""
@@ -19,8 +10,9 @@ build_compose_map() {
         if [[ $line == ./* ]]; then
             line="${line:2}"
             complete_list+=("$line")
-            compose_file=("$line")
-            compose_list+=("$line")
+            compose_file=("$SCRIPT_DIR$line")
+            compose_list+=("$compose_file")
+            echo $compose_file
 
         else
             complete_list+=("$line")
@@ -33,7 +25,7 @@ build_compose_map() {
 start() {
     local build_list=()
     local start_list=()
-docker compose -f network/docker-compose.yml up -d god_debug
+docker compose -f ${SCRIPT_DIR}network/docker-compose.yml up -d god_debug
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -b)
@@ -163,6 +155,7 @@ stop() {
                 ;;
 
             -h)
+                shift
                 echo "Usage: stop_containers [-s container1 container2 ...] [-d container1 container2 ...]"
                 echo "  -s       Stop specified containers. If no containers are provided, stops all running containers."
                 echo "  -d       Compose down specified containers. If no containers are provided, composes down all services."
@@ -192,16 +185,17 @@ _containers() {
     COMPREPLY=($(compgen -W "${complete_list[*]}" -- "$cur"))
 }
 
-# Build the map when the script is sourced
+# Global associative array to map compose files to services
+declare -A service_to_compose
+complete_list=()
+compose_list=()
+service_list=()
+
+# Enable running script from anywhere
+SCRIPT_DIR="$(pwd)/"
+# Path to the file containing the compose files and container names
+services_file="${SCRIPT_DIR}services.txt"
 build_compose_map
-
-# TODO: Get impliment this to allow all you to run the script from anywhere
-
-# SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# # Access a file relative to the script location
-# config_file="$SCRIPT_DIR/config.txt"
-# echo "Using config file at: $config_file"
-
 
 # Set up autocompletion 
 complete -F _containers start
