@@ -1,3 +1,4 @@
+[![Docker Lint & Security](https://github.com/lucasdbrown/industrial_network_template/actions/workflows/docker-checks.yml/badge.svg?branch=main)](https://github.com/lucasdbrown/industrial_network_template/actions/workflows/docker-checks.yml)
 # Industrial Virtualized Network Template
 Simulated Industrial Network Template for OT Security Competitions or Projects
 
