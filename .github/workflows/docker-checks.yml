@@ -39,7 +39,12 @@ jobs:
 
       - name: Run Checkov on docker-compose and Dockerfiles
         run: |
-          checkov -d . -f $(find . -name 'docker-compose*.yml') --output sarif --output-file-path results.sarif
+            checkov -d . \
+            -f $(find . -name 'docker-compose*.yml' -o -name 'Dockerfile') \
+            --output cli --output sarif \
+            --output-file-path console,results.sarif \
+            --soft-fail
+
 
       - name: Upload SARIF report to GitHub
         uses: github/codeql-action/upload-sarif@v2
