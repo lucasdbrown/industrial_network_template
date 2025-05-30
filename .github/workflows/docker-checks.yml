@@ -27,7 +27,8 @@ jobs:
       - name: Lint all Dockerfiles with Hadolint
         uses: hadolint/hadolint-action@v2.0.0
         with:
-          dockerfile: '**/Dockerfile'
+            recursive: true
+
 
       - name: Validate all docker-compose files
         run: |
