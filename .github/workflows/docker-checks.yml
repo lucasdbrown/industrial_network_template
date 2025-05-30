@@ -1,0 +1,55 @@
+name: Docker Lint & Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+permissions: read-all
+
+jobs:
+  docker-checks:
+    name: Lint and Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Install Docker Compose (v2 CLI)
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
+      - name: Lint all Dockerfiles with Hadolint
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: .
+          recursive: true
+        continue-on-error: true
+
+      - name: Validate all docker-compose files
+        run: |
+          find . -name "docker-compose*.yml" | while read file; do
+            echo "Validating $file"
+            docker-compose -f "$file" config
+          done
+
+      - name: Run Checkov on docker-compose and Dockerfiles
+        run: |
+          checkov -d . \
+          -f $(find . -name 'docker-compose*.yml' -o -name 'Dockerfile') \
+          --output cli --output sarif \
+          --output-file-path console,results.sarif \
+          --soft-fail
+
+      - name: Upload SARIF report to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
