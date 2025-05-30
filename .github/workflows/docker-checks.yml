@@ -8,7 +8,10 @@ on:
   workflow_dispatch:
 
 
-permissions: read-all
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
   docker-checks:
