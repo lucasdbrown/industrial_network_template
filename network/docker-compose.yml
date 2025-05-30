@@ -19,7 +19,6 @@ services:
         ipv4_address: 192.168.30.69
     entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
-    sd
   controller:
     container_name: controller
     privileged: true
