@@ -2,10 +2,13 @@ name: Docker Lint & Security
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
+
+
+permissions: read-all
 
 jobs:
   docker-checks:
@@ -24,10 +27,10 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose version
 
-    #   - name: Lint all Dockerfiles with Hadolint
-    #     uses: hadolint/hadolint-action@v2.0.0
-    #     with:
-    #         recursive: true
+      #   - name: Lint all Dockerfiles with Hadolint
+      #     uses: hadolint/hadolint-action@v2.0.0
+      #     with:
+      #         recursive: true
 
 
       - name: Validate all docker-compose files
@@ -39,13 +42,13 @@ jobs:
 
       - name: Run Checkov on docker-compose and Dockerfiles
         run: |
-            checkov -d . \
-            -f $(find . -name 'docker-compose*.yml' -o -name 'Dockerfile') \
-            --output cli --output sarif \
-            --output-file-path console,results.sarif \
-            --soft-fail
-            
+          checkov -d . \
+          -f $(find . -name 'docker-compose*.yml' -o -name 'Dockerfile') \
+          --output cli --output sarif \
+          --output-file-path console,results.sarif \
+          --soft-fail
+
       - name: Upload SARIF report to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
-            sarif_file: results.sarif
+          sarif_file: results.sarif
