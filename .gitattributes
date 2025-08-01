@@ -1,2 +1,4 @@
 # Keep all shell scripts LF in the work-tree and in every commit
-*.sh text eol=lf
+*.sh       text eol=lf
+Dockerfile text eol=lf
+*.conf     text eol=lf
