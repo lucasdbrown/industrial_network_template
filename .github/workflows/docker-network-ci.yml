@@ -1,0 +1,48 @@
+# .github/workflows/docker-network-ci.yml
+name: CI – Validate Industrial Network Docker Compose
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-network:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. (Optional) set up Docker buildx for advanced build capabilities
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Validate your compose file syntax
+      - name: Validate docker-compose.yml
+        run: docker-compose -f docker-compose.yml config -q
+
+      # 4. Build all images (parallel for speed)
+      - name: Build Docker services
+        run: docker-compose -f docker-compose.yml build --parallel
+
+      # 5. Bring the network up in detached mode
+      - name: Start the network
+        run: docker-compose -f docker-compose.yml up -d
+
+      # 6. Verify that none of the containers have immediately exited
+      - name: Verify containers are running
+        run: |
+          echo "Current container statuses:"
+          docker-compose -f docker-compose.yml ps
+          if docker-compose -f docker-compose.yml ps | grep -E 'Exit|unhealthy'; then
+            echo "::error ::One or more containers failed to start properly."
+            exit 1
+          fi
+
+      # 7. Tear down the network (always)
+      - name: Tear down
+        if: always()
+        run: docker-compose -f docker-compose.yml down --remove-orphans
