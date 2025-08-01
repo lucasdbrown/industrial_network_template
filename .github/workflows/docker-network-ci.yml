@@ -1,6 +1,6 @@
-# .github/workflows/docker-network-ci.yml
 name: CI – Validate Industrial Network Docker Compose
 
+# Trigger on pushes and PRs against main
 on:
   push:
     branches: [ main ]
@@ -11,32 +11,46 @@ jobs:
   test-network:
     runs-on: ubuntu-latest
 
+    # run all `run:` commands from the "network" folder
+    defaults:
+      run:
+        working-directory: network
+
     steps:
-      - name: Checkout
+      # 1) Checkout your code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Buildx (for builds)
+      # 2) Set up Docker Buildx (optional, but recommended for faster builds)
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Validate Compose file
-        run: docker compose -f docker-compose.yml config --quiet
+      # 3) Validate your compose file syntax
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
 
-      - name: Build all services
-        run: docker compose -f docker-compose.yml build --parallel
+      # 4) Build all services in parallel
+      - name: Build Docker services
+        run: docker compose build --parallel
 
-      - name: Bring the network up
-        run: docker compose -f docker-compose.yml up -d
+      # 5) Bring the network up in detached mode
+      - name: Start the network
+        run: docker compose up -d
 
-      - name: Smoke-test containers
+      # 6) Smoke-test: fail if any container stopped or died immediately
+      - name: Verify containers are healthy
         run: |
-          docker compose -f docker-compose.yml ps
-          if docker compose -f docker-compose.yml ps --quiet \
-             | xargs docker inspect --format '{{.State.Status}}' \
-             | grep -E 'exited|dead'; then
-            echo "::error ::One or more containers failed to start or died."
+          echo "Container statuses:"
+          docker compose ps
+          # list container IDs that are not running
+          FAILED=$(docker compose ps --quiet | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
             exit 1
           fi
 
-      - name: Tear down (always)
+      # 7) Tear down the network (always)
+      - name: Tear down
         if: always()
-        run: docker compose -f docker-compose.yml down --remove-orphans
+        run: docker compose down --remove-orphans
