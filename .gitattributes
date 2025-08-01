@@ -1,0 +1,2 @@
+# Keep all shell scripts LF in the work-tree and in every commit
+*.sh text eol=lf
