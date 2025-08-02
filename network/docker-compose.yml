@@ -118,8 +118,6 @@ services:
         ipv4_address: 192.168.4.254
       5_network:
         ipv4_address: 192.168.5.254
-      6_network:
-        ipv4_address: 192.168.6.253
     labels:
       - role=router
     entrypoint: [ "/bin/sh", "-c", "./start_frr.sh" ]
