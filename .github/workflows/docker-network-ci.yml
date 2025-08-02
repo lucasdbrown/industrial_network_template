@@ -144,6 +144,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
+
+      - name: Ensure site_operations_network exists
+        run: docker network create site_operations_network || true
       # Write the override file that disables industrial-openplc
       - name: Write Compose CI override (disable industrial-openplc)
         run: |
