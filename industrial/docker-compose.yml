@@ -10,8 +10,6 @@ services:
     networks:
       site_operations_network:
         ipv4_address: 192.168.30.2
-      ports:
-      - 8087:8086
     entrypoint: [ "/bin/sh", "-c", "sleep infinity" ]
 
   # This database holds the data collected from the industrial operations and is then moved to the Historian DB in the Enterprise Network

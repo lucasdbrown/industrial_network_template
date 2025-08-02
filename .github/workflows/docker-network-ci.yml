@@ -1,10 +1,8 @@
-name: CI - Validate Industrial Network Docker Compose
+name: Multi-Network Compose CI
 
-# Only allow the minimum GITHUB_TOKEN permissions
 permissions:
   contents: read
 
-# Trigger on pushes and PRs against main
 on:
   push:
     branches: [ '*' ]
@@ -12,49 +10,193 @@ on:
     branches: [ main ]
 
 jobs:
+  # Always test network/
   test-network:
+    name: "Test: network/"
     runs-on: ubuntu-latest
-
-    # run all `run:` commands from the "network" folder
     defaults:
       run:
         working-directory: network
-
     steps:
-      # 1) Checkout your code
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 2) Set up Docker Buildx (optional, but recommended for faster builds)
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # 3) Validate your compose file syntax
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
       - name: Validate docker-compose.yml
         run: docker compose config --quiet
-
-      # 4) Build all services in parallel
       - name: Build Docker services
         run: docker compose build --parallel
-
-      # 5) Bring the network up in detached mode
       - name: Start the network
         run: docker compose up -d
-
-      # 6) Smoke-test: fail if any container stopped or died immediately
       - name: Verify containers are healthy
         run: |
           echo "Container statuses:"
           docker compose ps
-          # list container IDs that are not running
-          FAILED=$(docker compose ps --quiet | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
             | awk '$1 != "running" { print $2 }')
           if [ -n "$FAILED" ]; then
             echo "::error ::Containers failed to start or died: $FAILED"
             exit 1
           fi
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
 
-      # 7) Tear down the network (always)
+  # Detect which folders changed for conditional downstream jobs
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      enterprise: ${{ steps.filter.outputs.enterprise }}
+      logging: ${{ steps.filter.outputs.logging }}
+      industrial: ${{ steps.filter.outputs.industrial }}
+      idmz: ${{ steps.filter.outputs.idmz }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            enterprise:
+              - 'enterprise/**'
+            logging:
+              - 'logging/**'
+            industrial:
+              - 'industrial/**'
+            idmz:
+              - 'idmz/**'
+
+  # Conditionally test other networks
+  test-enterprise:
+    name: "Test: enterprise/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.enterprise == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: enterprise
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+      - name: Show folder triggered
+        run: echo "Testing enterprise network because of changes in enterprise/"
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+      - name: Build Docker services
+        run: docker compose build --parallel
+      - name: Start the network
+        run: docker compose up -d
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+  test-logging:
+    name: "Test: logging/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.logging == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logging
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+      - name: Show folder triggered
+        run: echo "Testing logging network because of changes in logging/"
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+      - name: Build Docker services
+        run: docker compose build --parallel
+      - name: Start the network
+        run: docker compose up -d
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+  test-industrial:
+    name: "Test: industrial/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.industrial == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: industrial
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+      - name: Show folder triggered
+        run: echo "Testing industrial network because of changes in industrial/"
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+      - name: Build Docker services
+        run: docker compose build --parallel
+      - name: Start the network
+        run: docker compose up -d
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+  test-idmz:
+    name: "Test: idmz/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.idmz == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: idmz
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+      - name: Show folder triggered
+        run: echo "Testing IDMZ network because of changes in idmz/"
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+      - name: Build Docker services
+        run: docker compose build --parallel
+      - name: Start the network
+        run: docker compose up -d
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
       - name: Tear down
         if: always()
         run: docker compose down --remove-orphans
