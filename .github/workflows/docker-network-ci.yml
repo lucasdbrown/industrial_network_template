@@ -1,4 +1,8 @@
-name: CI – Validate Industrial Network Docker Compose
+name: CI - Validate Industrial Network Docker Compose
+
+# Only allow the minimum GITHUB_TOKEN permissions
+permissions:
+  contents: read
 
 # Trigger on pushes and PRs against main
 on:
