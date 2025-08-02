@@ -76,6 +76,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
+      - name: Ensure required external Docker networks exist
+        run: |
+          docker network create enterprise_network || true
       - name: Show folder triggered
         run: echo "Testing enterprise network because of changes in enterprise/"
       - name: Validate docker-compose.yml
@@ -110,6 +113,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
+      - name: Ensure required external Docker networks exist
+        run: |
+          docker network create enterprise_network || true
+          docker network create idmz_network || true
+          docker network create assembly_network || true
+          docker network create site_operations_network || true
+          docker network create utilities_network || true
+          docker network create packaging_network || true
       - name: Show folder triggered
         run: echo "Testing logging network because of changes in logging/"
       - name: Validate docker-compose.yml
@@ -144,7 +155,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
-
       - name: Ensure required external Docker networks exist
         run: |
           docker network create site_operations_network || true
@@ -194,6 +204,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
+      - name: Ensure required external Docker networks exist
+        run: |
+          docker network create enterprise_network || true
+          docker network create idmz_network || true
       - name: Show folder triggered
         run: echo "Testing IDMZ network because of changes in idmz/"
       - name: Validate docker-compose.yml
