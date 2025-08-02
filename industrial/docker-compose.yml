@@ -46,7 +46,7 @@ services:
   historian-server:
     build:
       context: ./site_operations
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     container_name: historian-server
     cap_add:
       - NET_ADMIN
