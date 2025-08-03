@@ -1,19 +1,11 @@
-name: Setup external Docker networks
-description: |
-  Parses compose files in a given folder, finds all external:true networks,
-  and creates them with unique subnets (skipping Docker built-ins).
-inputs:
-  compose-dir:
-    description: "Relative path to folder containing docker-compose.yml"
-    required: true
-runs:
-  using: composite
-  steps:
-    - shell: bash
-      run: |
-        python3 -m pip install --quiet --user pyyaml
+name: Setup Docker Networks
+description: Creates external Docker networks with static subnets
 
-    - shell: bash
-      run: |
-        python "${{ github.action_path }}/setup_external_networks.py" \
-          --compose-dir "${{ inputs.compose-dir }}"
+runs:
+  using: "composite"
+  steps:
+    - run: python3 -m pip install --quiet --user pyyaml ipaddress
+      shell: bash
+
+    - run: python3 .github/actions/setup-docker-networks/setup_external_networks.py
+      shell: bash
