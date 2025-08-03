@@ -62,19 +62,22 @@ runs:
                         externals[name]["ips"].add(ip)
 
         def choose_subnet(name, ips):
-            if name in USER_MAP:
-                return USER_MAP[name]
-            if ips:
-                octs = [list(map(int, ip.split("."))) for ip in ips]
-                a, b, c, _ = octs[0]
-                if all(o[:3] == [a, b, c] for o in octs):
-                    return f"{a}.{b}.{c}.0/24"
-                if all(o[:2] == [a, b] for o in octs):
-                    return f"{a}.{b}.0.0/16"
-                return f"{a}.0.0.0/8"
-            h = int(hashlib.sha1(name.encode()).hexdigest(), 16)
-            third = 1 + h % 254
-            return f"172.31.{third}.0/24"
+          if name in USER_MAP:
+              return USER_MAP[name]
+          if ips:
+              # Use the existing logic to pick subnet covering static IPs
+              octs = [list(map(int, ip.split("."))) for ip in ips]
+              a, b, c, _ = octs[0]
+              if all(o[:3] == [a, b, c] for o in octs):
+                  return f"{a}.{b}.{c}.0/24"
+              if all(o[:2] == [a, b] for o in octs):
+                  return f"{a}.{b}.0.0/16"
+              return f"{a}.0.0.0/8"
+
+          # No static IPs: deterministic unique /24 subnet in 192.168.x.0/24 range using hash
+          h = int(hashlib.sha1(name.encode()).hexdigest(), 16)
+          third_octet = 10 + (h % 200)  # start from 192.168.10.0 to avoid common conflicts
+          return f"192.168.{third_octet}.0/24"
 
         for name, meta in externals.items():
             subnet = choose_subnet(name, meta["ips"])
