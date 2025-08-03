@@ -45,6 +45,20 @@ services:
       enterprise_network:
         ipv4_address: 192.168.10.4
 
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: enterprise-ldap
+    environment:
+      LDAP_ORGANISATION: "Enterprise"
+      LDAP_DOMAIN: "enterprise.local"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
+    ports:
+      - "389:389"
+    restart: unless-stopped
+    networks:
+      enterprise_network:
+        ipv4_address: 192.168.10.9
+
 networks:
   enterprise_network:
     external: true

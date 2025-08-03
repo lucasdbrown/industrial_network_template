@@ -215,7 +215,6 @@ jobs:
       - name: Write Compose CI override (disable openplc)
         run: |
           cat > docker-compose.ci.override.yml <<'EOF'
-          version: "3"
           services:
             openplc:
               entrypoint: ["false"]
