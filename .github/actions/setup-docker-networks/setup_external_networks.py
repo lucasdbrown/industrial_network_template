@@ -14,7 +14,8 @@ import argparse, hashlib, os, subprocess, sys, yaml, ipaddress, pathlib, textwra
 
 def sh(cmd, **kw):
     kw.setdefault("check", True)
-    return subprocess.run(cmd, text=True, capture_output=False, **kw)
+    kw.setdefault("capture_output", False)
+    return subprocess.run(cmd, text=True, **kw)
 
 def choose_subnet(name, ips, used, user_map):
     """Return a /24 subnet that doesn't overlap anything in `used`."""
