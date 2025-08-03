@@ -8,7 +8,6 @@ services:
       - elasticsearch
     ports:
       - "5601:5601"
-      - "9000: 9000"
     volumes:
       - ./elk-config/kibana:/usr/share/kibana/config
     networks:
@@ -97,6 +96,11 @@ services:
       #   volumes:
       - grafana-storage:/var/lib/grafana:rw
 
+  test-sleeper:
+    image: alpine:latest
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    restart: unless-stopped
+    
 networks:
   enterprise_network:
     external: true
