@@ -1,81 +1,87 @@
 name: Setup external Docker networks for CI
-description: |
-  Creates all external:true networks found in the merged Compose config,
-  choosing / validating subnets so static ipv4_address assignments work.
+description: Create external:true networks with correct subnets
+inputs:
+  compose-dir:
+    description: "Folder containing docker-compose.yml"
+    default: "."
 runs:
   using: composite
   steps:
-    # Install PyYAML
     - shell: bash
       run: python3 -m pip install --user pyyaml
 
-    # Write helper script & run it
     - shell: bash
+      working-directory: ${{ inputs.compose-dir }}
       run: |
         set -euo pipefail
         cat > _setup_nets.py <<'PY'
-        import os, sys, subprocess, hashlib, ipaddress, yaml
-        USER_MAP = {}
-        if os.path.exists(".ci/networks.yml"):
-            with open(".ci/networks.yml") as f:
-                USER_MAP = yaml.safe_load(f) or {}
+        import os, sys, subprocess, hashlib
+        try:
+            import yaml
+        except Exception as e:
+            print("PyYAML not installed", e, file=sys.stderr); sys.exit(2)
 
-        # Pick up any override file written earlier in the job
+        # Optional user-provided map: .ci/networks.yml  (network_name -> subnet)
+        user_map = {}
+        if os.path.exists(".ci/networks.yml"):
+            with open(".ci/networks.yml", "r") as f:
+                user_map = yaml.safe_load(f) or {}
+
         files = ["docker-compose.yml"]
         if os.path.exists("docker-compose.ci.override.yml"):
             files += ["docker-compose.ci.override.yml"]
-        # Render merged compose
         cmd = ["docker", "compose"]
         for f in files:
             cmd += ["-f", f]
         cmd += ["config"]
         merged = subprocess.check_output(cmd, text=True)
         data = yaml.safe_load(merged) or {}
-        nets_cfg = data.get("networks", {}) or {}
+
+        networks = data.get("networks", {}) or {}
         services = data.get("services", {}) or {}
 
         externals = {}
-        for key, cfg in nets_cfg.items():
+        for n, cfg in networks.items():
             if isinstance(cfg, dict) and cfg.get("external"):
-                name = cfg.get("name", key)
-                externals[name] = {"ips": set()}
-        # gather static IPs
-        for scfg in services.values():
+                name = cfg.get("name", n)
+                externals[name] = {"compose_key": n, "ips": set()}
+
+        for sname, scfg in (services or {}).items():
             nets = scfg.get("networks", {}) or {}
             if isinstance(nets, list):
                 nets = {n:{} for n in nets}
-            for nkey, nopts in nets.items():
-                if nkey in nets_cfg and nets_cfg[nkey].get("external"):
-                    name = nets_cfg[nkey].get("name", nkey)
-                    if isinstance(nopts, dict):
-                        ip = nopts.get("ipv4_address")
+            for nkey, ncfg in nets.items():
+                if nkey in networks and isinstance(networks[nkey], dict) and networks[nkey].get("external"):
+                    name = networks[nkey].get("name", nkey)
+                    if name in externals and isinstance(ncfg, dict):
+                        ip = ncfg.get("ipv4_address")
                         if ip:
                             externals[name]["ips"].add(ip)
 
         def choose_subnet(name, ips):
-            if name in USER_MAP and USER_MAP[name]:
-                return USER_MAP[name]
+            if name in user_map and user_map[name]:
+                return user_map[name]
             if ips:
-                octs = [list(map(int, i.split("."))) for i in ips]
+                octs = [list(map(int, ip.split("."))) for ip in ips]
                 a,b,c,_ = octs[0]
-                if all(o[:3]==[a,b,c] for o in octs):
+                same24 = all(o[0]==a and o[1]==b and o[2]==c for o in octs)
+                if same24:
                     return f"{a}.{b}.{c}.0/24"
-                if all(o[:2]==[a,b] for o in octs):
+                same16 = all(o[0]==a and o[1]==b for o in octs)
+                if same16:
                     return f"{a}.{b}.0.0/16"
                 return f"{a}.0.0.0/8"
-            h = int(hashlib.sha1(name.encode()).hexdigest(),16)
-            third = 1+(h%254)
+            h = int(hashlib.sha1(name.encode()).hexdigest(), 16)
+            third = 1 + (h % 254)
             return f"172.31.{third}.0/24"
 
         for name, meta in externals.items():
             subnet = choose_subnet(name, meta["ips"])
-            if subprocess.call(["docker","network","inspect",name],
-                               stdout=subprocess.DEVNULL,
-                               stderr=subprocess.DEVNULL)==0:
-                print(f"{name}: exists")
+            r = subprocess.run(["docker", "network", "inspect", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if r.returncode == 0:
+                print(f"{name}: already exists; skipping create")
                 continue
             print(f"{name}: creating with subnet {subnet}")
-            subprocess.check_call(["docker","network","create",
-                                   "--subnet",subnet,name])
+            subprocess.check_call(["docker", "network", "create", "--subnet", subnet, name])
         PY
-        python3 _setup_nets.py
+                python3 _setup_nets.py
