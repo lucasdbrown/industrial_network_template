@@ -60,6 +60,23 @@ services:
       idmz_network:
         ipv4_address: 192.168.20.5
 
+  openvpn:
+    image: kylemanna/openvpn:2.5
+    container_name: idmz-openvpn
+    cap_add:            # required for tun device
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - openvpn_config:/etc/openvpn         # holds PKI and server config
+    environment:
+      - TZ=America/New_York
+    ports:
+      - "1194:1194/udp"                     # expose VPN to host
+    restart: unless-stopped
+    networks:
+      idmz_network:
+        ipv4_address: 192.168.20.10
+
 networks:
   idmz_network:
     external: true
