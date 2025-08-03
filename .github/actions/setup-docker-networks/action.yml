@@ -1,19 +1,19 @@
 name: Setup external Docker networks
-description: "Creates external:true networks with unique, non-overlapping subnets"
-
+description: |
+  Parses compose files in a given folder, finds all external:true networks,
+  and creates them with unique subnets (skipping Docker built-ins).
 inputs:
   compose-dir:
-    description: "Folder containing docker-compose.yml"
+    description: "Relative path to folder containing docker-compose.yml"
     required: true
-
 runs:
   using: composite
   steps:
     - shell: bash
-      run: python3 -m pip install --quiet --user pyyaml ipaddress
+      run: |
+        python3 -m pip install --quiet --user pyyaml
 
-    - name: Create external networks
-      shell: bash
+    - shell: bash
       run: |
         python "${{ github.action_path }}/setup_external_networks.py" \
           --compose-dir "${{ inputs.compose-dir }}"
