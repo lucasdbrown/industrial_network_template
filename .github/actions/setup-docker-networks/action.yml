@@ -1,20 +1,13 @@
 name: Setup Docker Networks
-description: Creates external Docker networks with static subnets
-
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Install yq, pip dependencies
+    - shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y yq
-        python3 -m pip install --quiet --user pyyaml ipaddress
-      shell: bash
+        python3 -m pip install --quiet --user pyyaml
 
-    - name: Generate subnets.txt
+    - shell: bash
       run: bash .github/actions/setup-docker-networks/get_subnets.sh
-      shell: bash
 
-    - name: Run setup_external_networks.py
+    - shell: bash
       run: python3 .github/actions/setup-docker-networks/setup_external_networks.py
-      shell: bash
