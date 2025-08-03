@@ -56,6 +56,15 @@ jobs:
               - 'industrial/**'
               - 'idmz/**'
 
+      - name: Debug Filter Outputs
+        run: |
+          echo "any_change=${{ steps.filter.outputs.any_change }}"
+          echo "enterprise=${{ steps.filter.outputs.enterprise }}"
+          echo "logging=${{ steps.filter.outputs.logging }}"
+          echo "industrial=${{ steps.filter.outputs.industrial }}"
+          echo "idmz=${{ steps.filter.outputs.idmz }}"
+          echo "network=${{ steps.filter.outputs.network }}"
+
   # Always test network/
   test-network:
     name: "Test: network/"
