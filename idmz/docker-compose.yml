@@ -85,3 +85,4 @@ networks:
 
 volumes:
   historian_data:
+  openvpn_config:
