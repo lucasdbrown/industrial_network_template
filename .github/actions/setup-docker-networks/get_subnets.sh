@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
-# get_subnets.sh – write network → subnet mapping from network/docker-compose.yml
 set -euo pipefail
 
-COMPOSE_FILE="network/docker-compose.yml"
-OUT=".github/actions/setup-docker-networks/subnets.txt"
+# Resolve full path to the main network compose file (works no matter where script is run from)
+COMPOSE="$(git rev-parse --show-toplevel)/network/docker-compose.yml"
+
+# Output file location (absolute path)
+OUT="$(git rev-parse --show-toplevel)/.github/actions/setup-docker-networks/subnets.txt"
+
+# Ensure output directory exists
+mkdir -p "$(dirname "$OUT")"
+
+# Truncate or create output
 : > "$OUT"
 
-python3 - <<'PY' "$COMPOSE_FILE" "$OUT"
-import sys, yaml, pathlib
-compose  = pathlib.Path(sys.argv[1])
-outfile  = pathlib.Path(sys.argv[2])
+awk '
+  /^[[:space:]]{2}[[:alnum:]_]+:/ {
+    match($0, /^[[:space:]]{2}([[:alnum:]_]+):/, m)
+    name = m[1]
+    if (name ~ /^[0-9]/) { name="" }
+    next
+  }
+  name && match($0, /subnet:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\/[0-9]+)/, m) {
+    print name "\t" m[1] >> "'"$OUT"'"
+    name = ""
+  }
+' "$COMPOSE"
 
-data = yaml.safe_load(compose.read_text())
-nets = data.get("networks", {}) or {}
-
-for name, cfg in nets.items():
-    ipam = isinstance(cfg, dict) and cfg.get("ipam", {})
-    subnet = "UNSPECIFIED"
-    if ipam and "config" in ipam and ipam["config"]:
-        subnet = ipam["config"][0].get("subnet", "UNSPECIFIED")
-    outfile.write_text(outfile.read_text() + f"{name}\t{subnet}\n")
-PY
-
-echo "✅ Subnets written to $OUT"
+echo "✅  Subnets written to $OUT"
