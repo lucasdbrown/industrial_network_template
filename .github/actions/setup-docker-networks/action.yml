@@ -4,8 +4,17 @@ description: Creates external Docker networks with static subnets
 runs:
   using: "composite"
   steps:
-    - run: python3 -m pip install --quiet --user pyyaml ipaddress
+    - name: Install yq, pip dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y yq
+        python3 -m pip install --quiet --user pyyaml ipaddress
       shell: bash
 
-    - run: python3 .github/actions/setup-docker-networks/setup_external_networks.py
+    - name: Generate subnets.txt
+      run: bash .github/actions/setup-docker-networks/get_subnets.sh
+      shell: bash
+
+    - name: Run setup_external_networks.py
+      run: python3 .github/actions/setup-docker-networks/setup_external_networks.py
       shell: bash
