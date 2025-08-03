@@ -51,6 +51,7 @@ jobs:
         if: always()
         run: docker compose down --remove-orphans
 
+
   # Detect folder changes
   changes:
     runs-on: ubuntu-latest
@@ -93,12 +94,16 @@ jobs:
 
       - name: Show folder triggered
         run: echo "Testing enterprise network because of changes in enterprise/"
+
       - name: Validate docker-compose.yml
         run: docker compose config --quiet
+
       - name: Build Docker services
         run: docker compose build --parallel
+
       - name: Start the network
         run: docker compose up -d
+
       - name: Verify containers are healthy
         run: |
           echo "Container statuses:"
@@ -110,9 +115,11 @@ jobs:
             echo "::error ::Containers failed to start or died: $FAILED"
             exit 1
           fi
+
       - name: Tear down
         if: always()
         run: docker compose down --remove-orphans
+
 
   test-logging:
     name: "Test: logging/"
@@ -133,12 +140,16 @@ jobs:
 
       - name: Show folder triggered
         run: echo "Testing logging network because of changes in logging/"
+
       - name: Validate docker-compose.yml
         run: docker compose config --quiet
+
       - name: Build Docker services
         run: docker compose build --parallel
+
       - name: Start the network
         run: docker compose up -d
+
       - name: Verify containers are healthy
         run: |
           echo "Container statuses:"
@@ -150,6 +161,7 @@ jobs:
             echo "::error ::Containers failed to start or died: $FAILED"
             exit 1
           fi
+
       - name: Tear down
         if: always()
         run: docker compose down --remove-orphans
@@ -166,7 +178,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
 
-      # Write override file to skip industrial-openplc
+      # Write override file to skip industrial-openplc in CI
       - name: Write Compose CI override (disable industrial-openplc)
         run: |
           cat > docker-compose.ci.override.yml <<'EOF'
@@ -183,12 +195,16 @@ jobs:
 
       - name: Show folder triggered
         run: echo "Testing industrial network because of changes in industrial/"
+
       - name: Validate docker-compose.yml (CI override)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml config --quiet
+
       - name: Build Docker services (CI override)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml build --parallel
+
       - name: Start the network (CI override)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml up -d
+
       - name: Verify containers are healthy
         run: |
           echo "Container statuses:"
@@ -200,6 +216,7 @@ jobs:
             echo "::error ::Containers failed to start or died: $FAILED"
             exit 1
           fi
+
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml down --remove-orphans
