@@ -96,11 +96,6 @@ services:
       #   volumes:
       - grafana-storage:/var/lib/grafana:rw
 
-  test-sleeper:
-    image: alpine:latest
-    command: ["sh", "-c", "while true; do sleep 3600; done"]
-    restart: unless-stopped
-    
 networks:
   enterprise_network:
     external: true
