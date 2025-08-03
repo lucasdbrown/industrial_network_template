@@ -1,93 +1,19 @@
-name: Setup external Docker networks for CI
-description: Create external:true networks with correct subnets
+name: Setup external Docker networks
+description: "Creates external:true networks with unique, non-overlapping subnets"
 
 inputs:
   compose-dir:
-    description: "Relative folder that contains docker-compose.yml"
-    required: true   # force every job to pass this
+    description: "Folder containing docker-compose.yml"
+    required: true
 
 runs:
   using: composite
   steps:
-    # 1) install PyYAML once
     - shell: bash
-      run: python3 -m pip install --quiet --user pyyaml
+      run: python3 -m pip install --quiet --user pyyaml ipaddress
 
-    # 2) cd into the folder, then run the Python helper
-    - name: Parse compose & create networks
+    - name: Create external networks
       shell: bash
       run: |
-        set -euo pipefail
-        cd "${{ inputs.compose-dir }}"
-
-        # ---------- helper script ----------
-        cat > _setup_nets.py <<'PY'
-        import os, subprocess, sys, hashlib, yaml
-        USER_MAP = {}
-        ROOT = os.path.dirname(os.getcwd())  # repo root
-
-        mapfile = os.path.join(ROOT, ".ci", "networks.yml")
-        if os.path.exists(mapfile):
-            with open(mapfile) as f:
-                USER_MAP = yaml.safe_load(f) or {}
-
-        files = ["docker-compose.yml"]
-        if os.path.exists("docker-compose.ci.override.yml"):
-            files += ["docker-compose.ci.override.yml"]
-
-        cmd = ["docker", "compose"]
-        for f in files:
-            cmd += ["-f", f]
-        cmd += ["config"]
-
-        merged = subprocess.check_output(cmd, text=True)
-        data = yaml.safe_load(merged) or {}
-        nets_cfg  = data.get("networks", {}) or {}
-        services  = data.get("services", {}) or {}
-
-        externals = {}
-        for key, cfg in nets_cfg.items():
-            if isinstance(cfg, dict) and cfg.get("external"):
-                externals[cfg.get("name", key)] = {"ips": set()}
-
-        for scfg in services.values():
-            nets = scfg.get("networks", {}) or {}
-            if isinstance(nets, list):
-                nets = {n:{} for n in nets}
-            for nkey, nopts in nets.items():
-                if nkey in nets_cfg and nets_cfg[nkey].get("external"):
-                    name = nets_cfg[nkey].get("name", nkey)
-                    ip = isinstance(nopts, dict) and nopts.get("ipv4_address")
-                    if ip:
-                        externals[name]["ips"].add(ip)
-
-        def choose_subnet(name, ips):
-          if name in USER_MAP:
-              return USER_MAP[name]
-          if ips:
-              # Use the existing logic to pick subnet covering static IPs
-              octs = [list(map(int, ip.split("."))) for ip in ips]
-              a, b, c, _ = octs[0]
-              if all(o[:3] == [a, b, c] for o in octs):
-                  return f"{a}.{b}.{c}.0/24"
-              if all(o[:2] == [a, b] for o in octs):
-                  return f"{a}.{b}.0.0/16"
-              return f"{a}.0.0.0/8"
-
-          # No static IPs: deterministic unique /24 subnet in 192.168.x.0/24 range using hash
-          h = int(hashlib.sha1(name.encode()).hexdigest(), 16)
-          third_octet = 10 + (h % 200)  # start from 192.168.10.0 to avoid common conflicts
-          return f"192.168.{third_octet}.0/24"
-
-        for name, meta in externals.items():
-            subnet = choose_subnet(name, meta["ips"])
-            if subprocess.call(["docker", "network", "inspect", name],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL) == 0:
-                print(f"{name}: exists")
-                continue
-            print(f"{name}: creating with subnet {subnet}")
-            subprocess.check_call(["docker", "network", "create",
-                                  "--subnet", subnet, name])
-        PY
-                python3 _setup_nets.py
+        python "${{ github.action_path }}/setup_external_networks.py" \
+          --compose-dir "${{ inputs.compose-dir }}"
