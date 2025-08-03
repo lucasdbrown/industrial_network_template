@@ -75,7 +75,7 @@ services:
     restart: unless-stopped
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.10
+        ipv4_address: 192.168.20.9
 
 networks:
   idmz_network:
