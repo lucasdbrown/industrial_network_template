@@ -60,6 +60,11 @@ services:
       idmz_network:
         ipv4_address: 192.168.20.5
 
+  test-sleeper:
+    image: alpine:latest
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    restart: unless-stopped
+
 networks:
   idmz_network:
     external: true
