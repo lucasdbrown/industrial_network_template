@@ -5,14 +5,62 @@ permissions:
 
 on:
   push:
-    branches: [ "*" ]
+    branches: ['*']
+    paths:
+      - 'network/**'
+      - 'enterprise/**'
+      - 'logging/**'
+      - 'industrial/**'
+      - 'idmz/**'
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - 'network/**'
+      - 'enterprise/**'
+      - 'logging/**'
+      - 'industrial/**'
+      - 'idmz/**'
+  workflow_dispatch:
 
 jobs:
+  # Detect folder changes
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      any_change: ${{ steps.filter.outputs.any_change }}
+      enterprise: ${{ steps.filter.outputs.enterprise }}
+      logging: ${{ steps.filter.outputs.logging }}
+      industrial: ${{ steps.filter.outputs.industrial }}
+      idmz: ${{ steps.filter.outputs.idmz }}
+      network: ${{ steps.filter.outputs.network }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            network:
+              - 'network/**'
+            enterprise:
+              - 'enterprise/**'
+            logging:
+              - 'logging/**'
+            industrial:
+              - 'industrial/**'
+            idmz:
+              - 'idmz/**'
+            any_change:
+              - 'network/**'
+              - 'enterprise/**'
+              - 'logging/**'
+              - 'industrial/**'
+              - 'idmz/**'
+
   # Always test network/
   test-network:
     name: "Test: network/"
+    needs: changes
+    if: needs.changes.outputs.any_change == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,30 +98,6 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down --remove-orphans
-
-
-  # Detect folder changes
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      enterprise: ${{ steps.filter.outputs.enterprise }}
-      logging: ${{ steps.filter.outputs.logging }}
-      industrial: ${{ steps.filter.outputs.industrial }}
-      idmz: ${{ steps.filter.outputs.idmz }}
-    steps:
-      - uses: actions/checkout@v3
-      - id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            enterprise:
-              - 'enterprise/**'
-            logging:
-              - 'logging/**'
-            industrial:
-              - 'industrial/**'
-            idmz:
-              - 'idmz/**'
 
   test-enterprise:
     name: "Test: enterprise/"

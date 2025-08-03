@@ -40,12 +40,9 @@ This workflow enforces Docker best practices and performs a security scan on eve
 - Add more security scanners (e.g., Trivy, Dockle) as needed.
 - Tune `hadolint` and `checkov` configuration to fit your organization’s security policies.
 
----
 
-## 📝 Running the Workflows
+## Running the Workflows
 
 - **Automatic triggers:** Both workflows run on all pushes, pull requests to `main`, and can be started manually.
 - **Security findings:** Any issues detected by Checkov will appear in the repository’s Security > Code scanning alerts.
 - **Status reporting:** See the Actions tab for job history and logs. Each workflow prints clear logs for every checked folder.
-
----
