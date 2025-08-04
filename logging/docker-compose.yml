@@ -11,7 +11,7 @@ services:
     volumes:
       - ./elk-config/kibana:/usr/share/kibana/config
     networks:
-      idmz_network:
+      enterprise_network:
         ipv4_address: 192.168.10.8
 
   elasticsearch:
@@ -20,7 +20,7 @@ services:
     cap_add:
       - NET_ADMIN
     networks:
-      idmz_network:
+      enterprise_network:
         ipv4_address: 192.168.10.6
     ports:
       - 9200:9200
@@ -40,7 +40,7 @@ services:
       - ./elk-config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
     networks:
-      idmz_network:
+      enterprise_network:
         ipv4_address: 192.168.10.7
       site_operations_network:
         ipv4_address: 192.168.30.7
