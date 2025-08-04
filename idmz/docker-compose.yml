@@ -61,7 +61,7 @@ services:
         ipv4_address: 192.168.20.5
 
   openvpn:
-    image: kylemanna/openvpn:2.5
+    image: kylemanna/openvpn:latest
     container_name: idmz-openvpn
     cap_add:            # required for tun device
       - NET_ADMIN
