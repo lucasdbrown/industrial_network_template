@@ -60,22 +60,31 @@ services:
       idmz_network:
         ipv4_address: 192.168.20.5
 
-  openvpn:
-    image: kylemanna/openvpn:latest
-    container_name: idmz-openvpn
-    cap_add:            # required for tun device
-      - NET_ADMIN
-      - SYS_MODULE
-    volumes:
-      - openvpn_config:/etc/openvpn         # holds PKI and server config
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add: [NET_ADMIN, SYS_MODULE]
     environment:
+      - PUID=1000
+      - PGID=1000
       - TZ=America/New_York
+      - SERVERURL=vpn.example.com
+      - SERVERPORT=51820
+      - PEERS=alice,bob
+      - PEERDNS=1.1.1.1
+      - INTERNAL_SUBNET=10.13.13.0
+    volumes:
+      - wireguard_config:/config          # <— shared
+      - /lib/modules:/lib/modules:ro
     ports:
-      - "1194:1194/udp"                     # expose VPN to host
+      - "51820:51820/udp"
     restart: unless-stopped
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
     networks:
       idmz_network:
-        ipv4_address: 192.168.20.7
+        ipv4_address: 192.168.20.6
 
 networks:
   idmz_network:
@@ -85,4 +94,4 @@ networks:
 
 volumes:
   historian_data:
-  openvpn_config:
+  wireguard_config:
