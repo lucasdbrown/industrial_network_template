@@ -2,11 +2,13 @@
 web-app
 web-app-db
 client_1
+ldap
 ./idmz/docker-compose.yml
 reverse-proxy
 remote-desktop-gateway
 guacd
 postgres
+wireguard
 ./industrial/docker-compose.yml
 ftp_server
 historian-db
