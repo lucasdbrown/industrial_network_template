@@ -1,0 +1,289 @@
+name: Multi-Network Compose CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: ['*']
+    paths:
+      - 'network/**'
+      - 'enterprise/**'
+      - 'logging/**'
+      - 'industrial/**'
+      - 'idmz/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'network/**'
+      - 'enterprise/**'
+      - 'logging/**'
+      - 'industrial/**'
+      - 'idmz/**'
+  workflow_dispatch:
+
+jobs:
+  # Detect folder changes
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      any_change: ${{ steps.filter.outputs.any_change }}
+      enterprise: ${{ steps.filter.outputs.enterprise }}
+      logging: ${{ steps.filter.outputs.logging }}
+      industrial: ${{ steps.filter.outputs.industrial }}
+      idmz: ${{ steps.filter.outputs.idmz }}
+      network: ${{ steps.filter.outputs.network }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            network:
+              - 'network/**'
+            enterprise:
+              - 'enterprise/**'
+            logging:
+              - 'logging/**'
+            industrial:
+              - 'industrial/**'
+            idmz:
+              - 'idmz/**'
+            any_change:
+              - 'network/**'
+              - 'enterprise/**'
+              - 'logging/**'
+              - 'industrial/**'
+              - 'idmz/**'
+
+      - name: Debug Filter Outputs
+        run: |
+          echo "any_change=${{ steps.filter.outputs.any_change }}"
+          echo "enterprise=${{ steps.filter.outputs.enterprise }}"
+          echo "logging=${{ steps.filter.outputs.logging }}"
+          echo "industrial=${{ steps.filter.outputs.industrial }}"
+          echo "idmz=${{ steps.filter.outputs.idmz }}"
+          echo "network=${{ steps.filter.outputs.network }}"
+
+  # Always test network/
+  test-network:
+    name: "Test: network/"
+    needs: changes
+    if: needs.changes.outputs.any_change == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: network
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+
+      - name: Build Docker services
+        run: docker compose build --parallel
+
+      - name: Start the network
+        run: docker compose up -d
+
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+  test-enterprise:
+    name: "Test: enterprise/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.enterprise == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: enterprise
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      - name: Create external networks
+        uses: ./.github/actions/setup-docker-networks
+        with:
+          compose-dir: enterprise
+
+      - name: Show folder triggered
+        run: echo "Testing enterprise network because of changes in enterprise/"
+
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+
+      - name: Build Docker services
+        run: docker compose build --parallel
+
+      - name: Start the network
+        run: docker compose up -d
+
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+
+  test-logging:
+    name: "Test: logging/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.logging == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logging
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      - name: Create external networks
+        uses: ./.github/actions/setup-docker-networks
+        with:
+          compose-dir: logging
+
+      - name: Show folder triggered
+        run: echo "Testing logging network because of changes in logging/"
+
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+
+      - name: Build Docker services
+        run: docker compose build --parallel
+
+      - name: Start the network
+        run: docker compose up -d
+
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans
+
+  test-industrial:
+    name: "Test: industrial/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.industrial == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: industrial
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      # Write override file to skip openplc in CI
+      - name: Write Compose CI override (disable openplc)
+        run: |
+          cat > docker-compose.ci.override.yml <<'EOF'
+          services:
+            openplc:
+              entrypoint: ["false"]
+          EOF
+
+      - name: Create external networks
+        uses: ./.github/actions/setup-docker-networks
+        with:
+          compose-dir: industrial
+
+      - name: Show folder triggered
+        run: echo "Testing industrial network because of changes in industrial/"
+
+      - name: Validate docker-compose.yml (CI override)
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml config --quiet
+
+      - name: Build Docker services (CI override)
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml build --parallel
+
+      - name: Start the network (CI override)
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml up -d
+
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose -f docker-compose.yml -f docker-compose.ci.override.yml ps
+          FAILED=$(docker compose -f docker-compose.yml -f docker-compose.ci.override.yml ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.override.yml down --remove-orphans
+
+  test-idmz:
+    name: "Test: idmz/"
+    needs: [test-network, changes]
+    if: needs.changes.outputs.idmz == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: idmz
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      - name: Create external networks
+        uses: ./.github/actions/setup-docker-networks
+        with:
+          compose-dir: idmz
+
+      - name: Show folder triggered
+        run: echo "Testing IDMZ network because of changes in idmz/"
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+      - name: Build Docker services
+        run: docker compose build --parallel
+      - name: Start the network
+        run: docker compose up -d
+      - name: Verify containers are healthy
+        run: |
+          echo "Container statuses:"
+          docker compose ps
+          FAILED=$(docker compose ps --quiet \
+            | xargs docker inspect --format '{{.State.Status}} {{.Id}}' \
+            | awk '$1 != "running" { print $2 }')
+          if [ -n "$FAILED" ]; then
+            echo "::error ::Containers failed to start or died: $FAILED"
+            exit 1
+          fi
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans

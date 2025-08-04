@@ -1,0 +1,6 @@
+enterprise_network	192.168.10.0/24
+idmz_network	192.168.20.0/24
+assembly_network	192.168.31.0/24
+utilities_network	192.168.32.0/24
+packaging_network	192.168.33.0/24
+site_operations_network	192.168.30.0/24

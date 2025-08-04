@@ -35,18 +35,18 @@ docker network prune -af &> /dev/null
 echo "Network Prune Done"
 
 # TODO: Pick either god_debug or all of network to spin up every time
-docker compose -f "${COMPOSE_MAP["network"]}" up -d
+docker compose -f "${COMPOSE_MAP["network"]}" up --build -d
 echo "Network started."
 RUNNING_COMPOSES+=("network")
 
 for service in "${START_SERVICES[@]}"; do
     [[ "$service" == "network" ]] && continue
     if [[ -n "${SERVICE_COMPOSE_MAP[$service]}" ]]; then
-        docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" up -d "$service"
+        docker compose -f "${SERVICE_COMPOSE_MAP[$service]}" up --build -d "$service"
         echo "$service started."
         RUNNING_SERVICES+=("$service")
     elif [[ -n "${COMPOSE_MAP[$service]}" ]]; then
-        docker compose -f "${COMPOSE_MAP[$service]}" up -d
+        docker compose -f "${COMPOSE_MAP[$service]}" up --build -d
         echo "Compose file $service started."
         RUNNING_COMPOSES+=("$service")
     else
