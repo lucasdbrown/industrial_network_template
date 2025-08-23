@@ -12,6 +12,9 @@ Simulated Industrial Network Template for OT Security Competitions or Projects
 -  `git add .`
 -  `git commit -m "New Repo"`
 
+## Getting Started
+Read the docs but start with (getting_started)[./docs/getting_started.md]
+
 ## Running or Testing the OT Network
 ```bash
 chmod +x testing.sh

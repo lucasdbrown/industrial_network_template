@@ -1,30 +1,33 @@
 # General
 Inorder for any script to run you need to `chmod +x` the script and have bash.
 
-# init.sh
-This script will turn on all the services inside the repository.
-
-# stop.sh
-This will compose down all the services that are running
-
 # get_services.sh
-It will create a txt file that will store all the services and compose names for the testing script to use. Inorder for this script to run you will need to have installed these commands
+It will create a .txt file `services.txt` that will store all the services and compose names for the testing script to use. Inorder for this script to run you will need to have installed these commands
 - `yq`
 - `grep`
 - `sed`
 
-On Mac or linux use your package manager to install the commands ie:
-- `brew install <command>` mac
-- `sudo dnf install <command` Fedora/RHEL/Rocky Linux
 
-On windows I don't know how you would do this. The commands need to be installed so the bash script can use them. Which is different from simply being able to use them in powershell
-
-
-# testing.sh
+# tools.sh
+This script is the latest script that will help with working on this project.
 
 ## Requirements
+- Bash 4 or higher for bash dicts.
+- Requirements for the get_services script
+
+## How to use
+- Navigate to the root of the repository
+- `source tools.sh`
+- Now you can use the command line tools `start` and `stop`
+- Run `-h` on either to get full list of command options
+
+## Overview
+This script when sourced runs `get_services.sh` to update the services.txt file. Then it creates a autocomplete from that file that you can use to quickly select an compose or container quickly. Once you source the script you can run the start and stop commands from anywhere in your system on the same shell and it will work.
+
+# testing.sh
+## Requirements
 - **Bash 4 or higher**: Ensure you have an updated version of Bash. macOS users need to install Bash manually since macOS ships with an older version (3.12).
-  > [!WARNING] Do not remove the old version of Bash on macOS. Install a newer version using Homebrew: `brew install bash`
+  > [!WARNING] Do not remove the old version of Bash on macOS. Install a newer version using Homebrew: `brew install bash` or another package manager.
 
 - **Docker & Docker Compose**: Required to manage services and containers.
 
