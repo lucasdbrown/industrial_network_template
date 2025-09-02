@@ -255,7 +255,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
-    restart: always
     networks:
       packaging_network:
         ipv4_address: 192.168.33.2

@@ -25,12 +25,17 @@ build_compose_map() {
 start() {
     local build_list=()
     local start_list=()
-docker compose -f ${SCRIPT_DIR}network/docker-compose.yml up -d god_debug
+    docker compose -f ${SCRIPT_DIR}network/docker-compose.yml up -d god_debug
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -b)
                 shift
                 while [[ $# -gt 0 && $1 != -* ]]; do
+                    if [[ ${group_dict[@]} =~ $1 ]]; then
+                        for service in ${group_dict[@]}; do
+                            build_list+=${group_dict["$1"]}
+                        done
+                    fi
                     build_list+=("$1")
                     shift
                 done
@@ -174,6 +179,83 @@ stop() {
     done
 }
 
+ungroup() {
+    if [[ $# -gt 0 ]]; then
+        IFS=' '
+        read -rA group_values <<< "$1"
+        unset IFS
+        return group_values
+    else
+        echo "Need to use 1 argument to use ungroup"
+        return "" 
+    fi
+}
+
+edit_group() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -a)
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    stop_list+=("$1")
+                    shift
+                done
+                if [[ ${#stop_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        docker compose -f $arg stop
+                    done
+                    break
+                fi  
+                for arg in $stop_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        docker compose -f $arg stop
+                    else
+                        docker compose -f ${service_to_compose["$arg"]} stop $arg
+                    fi
+                done
+                ;;
+
+            -d)
+                shift
+                while [[ $# -gt 0 && $1 != -* ]]; do
+                    down_list+=("$1")
+                    shift
+                done
+                if [[ ${#down_list[@]} -eq 0 ]]; then
+                    for arg in $compose_list; do
+                        docker compose -f $arg down
+                    done
+                    break
+                fi  
+                for arg in $down_list; do
+                    if [[ ${compose_list[@]} =~ $arg ]] then
+                        docker compose -f $arg down
+                    else
+                        docker compose -f ${service_to_compose["$arg"]} down $arg
+                    fi
+                done
+                ;;
+
+            -h)
+                shift
+                echo "Usage: stop_containers [-s container1 container2 ...] [-d container1 container2 ...]"
+                echo "  -s       Stop specified containers. If no containers are provided, stops all running containers."
+                echo "  -d       Compose down specified containers. If no containers are provided, composes down all services."
+                echo "  -h       Show this help message."
+                echo
+                echo "Examples:"
+                echo "  stop_containers -s web-app db-server      # Stops web-app and db-server containers."
+                echo "  stop_containers -d                        # Composes down all services."
+                echo "  stop_containers -s web-app -d db-server    # Stops web-app and composes down db-server."
+                ;;
+
+            *)
+                break
+                ;;
+        esac
+    done
+}
+
 #TODO: Add a grouping feat that allows you to create a group and then call that name instead of all the names inside of it. Would be done with a dict using formatting for dict of list. Then save this to a file so others can use the grouping.
 
 # Autocomplete Function
@@ -187,6 +269,7 @@ _containers() {
 
 # Global associative array to map compose files to services
 declare -A service_to_compose
+declare -A group_dict
 complete_list=()
 compose_list=()
 service_list=()
